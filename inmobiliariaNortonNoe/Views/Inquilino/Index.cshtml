@@ -1,0 +1,29 @@
+@model IEnumerable<Inquilino>
+@{
+    ViewData["Title"] = "Lista de Inquilinos";
+}
+<h2>Inquilinos</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Apellido</th>
+            <th>Email</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var i in Model)
+        {
+            <tr>
+                <td>@i.Nombre</td>
+                <td>@i.Apellido</td>
+                <td>@i.Email</td>
+                <td>
+                    <a class="btn btn-info" asp-action="Details" asp-route-id="@i.Id">Ver Más</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<a class="btn btn-success" asp-action="Create">Agregar Inquilino</a>

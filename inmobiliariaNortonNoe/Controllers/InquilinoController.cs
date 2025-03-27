@@ -1,74 +1,220 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using inmobiliariaNortonNoe.Models;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.Extensions.Configuration;
 
-[Route("api/inquilino")]
-[ApiController]
-public class InquilinoController : ControllerBase
+namespace inmobiliariaNortonNoe.Controllers
 {
-    private readonly AppDbContext _context;
+	public class InquilinoController : Controller
+	{
+		private readonly IRepositorioInquilino repositorio;
+		public InquilinoController(IRepositorioInquilino repo)
+		{
+			this.repositorio = repo;
+		}
 
-    public InquilinoController(AppDbContext context)
-    {
-        _context = context;
-    }
+		// GET: Inquilino
+		[Route("[controller]/Index")]
+		public ActionResult Index()
+		{
+			try
+			{
+				var lista = repositorio.ObtenerTodos();
+				ViewBag.Id = TempData["Id"];
+				if (TempData.ContainsKey("Mensaje"))
+					ViewBag.Mensaje = TempData["Mensaje"];
+				return View(lista);
+			}
+			catch (Exception ex)
+			{
+				throw;
+			}
+		}
 
-    // Obtener todos los inquilinos
-    [HttpGet]
-    public IActionResult GetInquilinos()
-    {
-        return Ok(_context.Inquilinos.ToList());
-    }
+		// GET: Inquilino
+		[Route("[controller]/Lista")]
+		public ActionResult Lista(int pagina=1)
+		{
+			try
+			{
+				var tamaño = 5;
+				var lista = repositorio.ObtenerLista(Math.Max(pagina, 1), tamaño);
+				ViewBag.Pagina = pagina;
+				var total = repositorio.ObtenerCantidad();
+				ViewBag.TotalPaginas = total % tamaño == 0 ? total / tamaño : total / tamaño + 1;
+				
+				ViewBag.Id = TempData["Id"];
+				if (TempData.ContainsKey("Mensaje"))
+					ViewBag.Mensaje = TempData["Mensaje"];
+				return View(lista);
+			}
+			catch (Exception ex)
+			{
+				throw;
+			}
+		}
 
-    // Obtener un inquilino por ID
-    [HttpGet("{id}")]
-    public IActionResult GetInquilino(int id)
-    {
-        var inquilino = _context.Inquilinos.Find(id);
-        if (inquilino == null)
-            return NotFound();
-        return Ok(inquilino);
-    }
+		// GET: Inquilino/Details/5
+		public ActionResult Details(int id)
+		{
+			try
+			{
+				var entidad = repositorio.ObtenerPorId(id);
+				return View();
+			}
+			catch (Exception ex)
+			{
+				throw;
+			}
+		}
 
-    // Crear un nuevo inquilino
-    [HttpPost]
-    public IActionResult CreateInquilino([FromBody] Inquilino inquilino)
-    {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
+		// GET: Inquilino/Busqueda
+		public IActionResult Busqueda()
+		{
+			try
+			{
+				return View();
+			}
+			catch (Exception ex)
+			{//poner breakpoints para detectar errores
+				throw;
+			}
+		}
 
-        _context.Inquilinos.Add(inquilino);
-        _context.SaveChanges();
-        return CreatedAtAction(nameof(GetInquilino), new { id = inquilino.Id }, inquilino);
-    }
+		// GET: Inquilino/Buscar/5
+		[Route("[controller]/Buscar/{q}", Name = "BuscarInquilino")]
+		public IActionResult Buscar(string q)
+		{
+			try
+			{
+				var res = repositorio.BuscarPorNombre(q);
+				return Json(new { Datos = res });
+			}
+			catch (Exception ex)
+			{
+				return Json(new { Error = ex.Message });
+			}
+		}
 
-    // Modificar un inquilino
-    [HttpPut("{id}")]
-    public IActionResult UpdateInquilino(int id, [FromBody] Inquilino updatedInquilino)
-    {
-        var inquilino = _context.Inquilinos.Find(id);
-        if (inquilino == null)
-            return NotFound();
+		// GET: Inquilino/Create
+		public ActionResult Create()
+		{
+			try
+			{
+				return View();
+			}
+			catch (Exception ex)
+			{//poner breakpoints para detectar errores
+				throw;
+			}
+		}
 
-        inquilino.Dni = updatedInquilino.Dni;
-        inquilino.Nombre = updatedInquilino.Nombre;
-        inquilino.Apellido = updatedInquilino.Apellido;
-        inquilino.Telefono = updatedInquilino.Telefono;
-        inquilino.Email = updatedInquilino.Email;
+		// POST: Inquilino/Create
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public ActionResult Create(Inquilino Inquilino)
+		{
+			try
+			{
+				if (ModelState.IsValid)// Pregunta si el modelo es válido
+				{
+					// Reemplazo de clave plana por clave con hash
+					repositorio.Alta(Inquilino);
+					TempData["Id"] = Inquilino.Id;
+					return RedirectToAction(nameof(Index));
+				}
+				else
+					return View(Inquilino);
+			}
+			catch (Exception ex)
+			{//poner breakpoints para detectar errores
+				throw;
+			}
+		}
 
-        _context.SaveChanges();
-        return NoContent();
-    }
+		// GET: Inquilino/Edit/5
+		public ActionResult Edit(int id)
+		{
+			try
+			{
+				var entidad = repositorio.ObtenerPorId(id);
+				return View(entidad);//pasa el modelo a la vista
+			}
+			catch (Exception ex)
+			{//poner breakpoints para detectar errores
+				throw;
+			}
+		}
 
-    // Eliminar un inquilino
-    [HttpDelete("{id}")]
-    public IActionResult DeleteInquilino(int id)
-    {
-        var inquilino = _context.Inquilinos.Find(id);
-        if (inquilino == null)
-            return NotFound();
+		// POST: Inquilino/Edit/5
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		//public ActionResult Edit(int id, IFormCollection collection)
+		public ActionResult Edit(int id, Inquilino entidad)
+		{
+			// Si en lugar de IFormCollection ponemos Inquilino, el enlace de datos lo hace el sistema
+			Inquilino p = null;
+			try
+			{
+				p = repositorio.ObtenerPorId(id);
+				// En caso de ser necesario usar: 
+				//
+				//Convert.ToInt32(collection["CAMPO"]);
+				//Convert.ToDecimal(collection["CAMPO"]);
+				//Convert.ToDateTime(collection["CAMPO"]);
+				//int.Parse(collection["CAMPO"]);
+				//decimal.Parse(collection["CAMPO"]);
+				//DateTime.Parse(collection["CAMPO"]);
+				////////////////////////////////////////
+				p.Nombre = entidad.Nombre;
+				p.Apellido = entidad.Apellido;
+				p.Dni = entidad.Dni;
+				p.Email = entidad.Email;
+				p.Telefono = entidad.Telefono;
+				repositorio.Modificacion(p);
+				TempData["Mensaje"] = "Datos guardados correctamente";
+				return RedirectToAction(nameof(Index));
+			}
+			catch (Exception ex)
+			{//poner breakpoints para detectar errores
+				throw;
+			}
+		}
+		// GET: Inquilino/Delete/5
+		public ActionResult Eliminar(int id)
+		{
+			try
+			{
+				var entidad = repositorio.ObtenerPorId(id);
+				return View(entidad);
+			}
+			catch (Exception ex)
+			{//poner breakpoints para detectar errores
+				throw;
+			}
+		}
 
-        _context.Inquilinos.Remove(inquilino);
-        _context.SaveChanges();
-        return NoContent();
-    }
+		// POST: Inquilino/Delete/5
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public ActionResult Eliminar(int id, Inquilino entidad)
+		{
+			try
+			{
+				repositorio.Baja(id);
+				TempData["Mensaje"] = "Eliminación realizada correctamente";
+				return RedirectToAction(nameof(Index));
+			}
+			catch (Exception ex)
+			{//poner breakpoints para detectar errores
+				throw;
+			}
+		}
+	}
 }

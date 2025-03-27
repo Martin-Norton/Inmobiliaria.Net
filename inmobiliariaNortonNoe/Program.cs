@@ -4,21 +4,19 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Configuration;
-using Microsoft.EntityFrameworkCore;
-using inmobiliariaNortonNoe;
+using inmobiliariaNortonNoe.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Agregar servicios al contenedor
+builder.WebHost.UseUrls("http://localhost:5000","https://localhost:5001", "http://*:5000", "https://*:5001");
+
 builder.Services.AddControllersWithViews();
 
-// Configurar la conexión a la base de datos
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddScoped<IRepositorioPropietario, RepositorioPropietario>();
 
+builder.Services.AddScoped<IRepositorioInquilino, RepositorioInquilino>();
 var app = builder.Build();
 
-// Configuración del pipeline de la aplicación
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");

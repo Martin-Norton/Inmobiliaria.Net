@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
-
+namespace inmobiliariaNortonNoe.Models
+{
 public class Propietario
 {
     [Key]
@@ -7,12 +8,12 @@ public class Propietario
     public int Id { get; set; }
 
     [Required]
-    public string Dni { get; set; }
-
-    [Required]
     public string Nombre { get; set; }
     [Required]
     public string Apellido { get; set; }
+    
+    [Required]
+    public string Dni { get; set; }
 
     [Required]
     [Display(Name = "Teléfono")]
@@ -21,15 +22,5 @@ public class Propietario
     [Required, EmailAddress]
     public string Email { get; set; }
 
-    public int estado { get; set; }
-    public override string ToString()
-		{
-			//return $"{Apellido}, {Nombre}";
-			//return $"{Nombre} {Apellido}";
-			var res = $"{Nombre} {Apellido}";
-			if(!String.IsNullOrEmpty(Dni)) {
-				res += $" ({Dni})";
-			}
-			return res;
-		}
+}
 }

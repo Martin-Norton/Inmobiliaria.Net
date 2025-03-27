@@ -1,78 +1,213 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using inmobiliariaNortonNoe.Models;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.Extensions.Configuration;
 
-[Route("api/propietario")]
-[ApiController]
-public class PropietarioController : ControllerBase
+namespace inmobiliariaNortonNoe.Controllers
 {
-    private readonly AppDbContext _context;
+	public class PropietarioController : Controller
+	{
+		private readonly IRepositorioPropietario repositorio;
+		private readonly IConfiguration config;
 
-    public PropietarioController(AppDbContext context)
-    {
-        _context = context;
-    }
+		public PropietarioController(IRepositorioPropietario repo)
+		{
+			this.repositorio = repo;
+		}
 
-    // Obtener todos los propietarios
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<Propietario>>> GetPropietarios()
-    {
-        return await _context.Propietarios.ToListAsync();
-    }
+		// GET: Propietario
+		[Route("[controller]/Index")]
+		public ActionResult Index()
+		{
+			try
+			{
+				var lista = repositorio.ObtenerTodos();
+				ViewBag.Id = TempData["Id"];
+				if (TempData.ContainsKey("Mensaje"))
+					ViewBag.Mensaje = TempData["Mensaje"];
+				return View(lista);
+			}
+			catch (Exception ex)
+			{
+				throw;
+			}
+		}
 
-    // Obtener un propietario por Id
-    [HttpGet("{Id}")]
-    public async Task<ActionResult<Propietario>> GetPropietario(int Id)
-    {
-        var propietario = await _context.Propietarios.FindAsync(Id);
+		// GET: Propietario
+		[Route("[controller]/Lista")]
+		public ActionResult Lista(int pagina=1)
+		{
+			try
+			{
+				var tamaño = 5;
+				var lista = repositorio.ObtenerLista(Math.Max(pagina, 1), tamaño);
+				ViewBag.Pagina = pagina;
+				var total = repositorio.ObtenerCantidad();
+				ViewBag.TotalPaginas = total % tamaño == 0 ? total / tamaño : total / tamaño + 1;
+				// TempData es para pasar datos entre acciones
+				// ViewBag/Data es para pasar datos del controlador a la vista
+				// Si viene alguno valor por el tempdata, lo paso al viewdata/viewbag
+				ViewBag.Id = TempData["Id"];
+				if (TempData.ContainsKey("Mensaje"))
+					ViewBag.Mensaje = TempData["Mensaje"];
+				return View(lista);
+			}
+			catch (Exception ex)
+			{// Poner breakpoints para detectar errores
+				throw;
+			}
+		}
 
-        if (propietario == null)
-        {
-            return NotFound();
-        }
+		// GET: Propietario/Details/5
+		public ActionResult Details(int id)
+		{
+			try
+			{
+				var entidad = repositorio.ObtenerPorId(id);
+				Console.WriteLine(entidad.Apellido);
+				return View();
+			}
+			catch (Exception ex)
+			{
+				throw;
+			} //(hasta aca llega propietario)
+		}
 
-        return propietario;
-    }
+		// GET: Propietario/Busqueda
+		public IActionResult Busqueda()
+		{
+			try
+			{
+				return View();
+			}
+			catch (Exception ex)
+			{//poner breakpoints para detectar errores
+				throw;
+			}
+		}
 
-    // Crear un propietario
-    [HttpPost]
-    public async Task<ActionResult<Propietario>> PostPropietario(Propietario propietario)
-    {
-        _context.Propietarios.Add(propietario);
-        await _context.SaveChangesAsync();
+		// GET: Propietario/Buscar/5
+		[Route("[controller]/Buscar/{q}", Name = "Buscar")]
+		public IActionResult Buscar(string q)
+		{
+			try
+			{
+				var res = repositorio.BuscarPorNombre(q);
+				return Json(new { Datos = res });
+			}
+			catch (Exception ex)
+			{
+				return Json(new { Error = ex.Message });
+			}
+		}
 
-        return CreatedAtAction(nameof(GetPropietario), new { Id = propietario.Id }, propietario);
-    }
+		// GET: Propietario/Create
+		public ActionResult Create()
+		{
+			try
+			{
+				return View();
+			}
+			catch (Exception ex)
+			{
+				throw;
+			}
+		}
 
-    // Modificar un propietario
-    [HttpPut("{Id}")]
-    public async Task<IActionResult> PutPropietario(int Id, Propietario propietario)
-    {
-        if (Id != propietario.Id)
-        {
-            return BadRequest();
-        }
+		// POST: Propietario/Create
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public ActionResult Create(Propietario propietario)
+		{
+			try
+			{
+				if (ModelState.IsValid)
+				{
+					repositorio.Alta(propietario);
+					TempData["Id"] = propietario.Id;
+					return RedirectToAction(nameof(Index));
+				}
+				else
+					return View(propietario);
+			}
+			catch (Exception ex)
+			{
+				throw;
+			}
+		}
 
-        _context.Entry(propietario).State = EntityState.Modified;
-        await _context.SaveChangesAsync();
+		// GET: Propietario/Edit/5
+		public ActionResult Edit(int id)
+		{
+			try
+			{
+				var entidad = repositorio.ObtenerPorId(id);
+				return View(entidad);
+			}
+			catch (Exception ex)
+			{
+				throw;
+			}
+		}
 
-        return NoContent();
-    }
+		// POST: Propietario/Edit/5
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public ActionResult Edit(int id, Propietario entidad)
+		{
+			Propietario p = null;
+			try
+			{
+				p = repositorio.ObtenerPorId(id);
+				p.Nombre = entidad.Nombre;
+				p.Apellido = entidad.Apellido;
+				p.Dni = entidad.Dni;
+				p.Email = entidad.Email;
+				p.Telefono = entidad.Telefono;
+				repositorio.Modificacion(p);
+				TempData["Mensaje"] = "Datos guardados correctamente";
+				return RedirectToAction(nameof(Index));
+			}
+			catch (Exception ex)
+			{
+				throw;
+			}
+		}
+		// GET: Propietario/Delete/5
+		public ActionResult Eliminar(int id)
+		{
+			try
+			{
+				var entidad = repositorio.ObtenerPorId(id);
+				return View(entidad);
+			}
+			catch (Exception ex)
+			{
+				throw;
+			}
+		}
 
-    // Eliminar un propietario
-    [HttpDelete("{Id}")]
-    public async Task<IActionResult> DeletePropietario(int Id)
-    {
-        var propietario = await _context.Propietarios.FindAsync(Id);
-        if (propietario == null)
-        {
-            return NotFound();
-        }
-
-        _context.Propietarios.Remove(propietario);
-        await _context.SaveChangesAsync();
-
-        return NoContent();
-    }
+		// POST: Propietario/Delete/5
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public ActionResult Eliminar(int id, Propietario entidad)
+		{
+			try
+			{
+				repositorio.Baja(id);
+				TempData["Mensaje"] = "Eliminación realizada correctamente";
+				return RedirectToAction(nameof(Index));
+			}
+			catch (Exception ex)
+			{
+				throw;
+			}
+		}
+	}
 }

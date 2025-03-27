@@ -1,0 +1,29 @@
+@model IEnumerable<Propietario>
+@{
+    ViewData["Title"] = "Lista de Propietarios";
+}
+<h2>Propietarios</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Apellido</th>
+            <th>Email</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var p in Model)
+        {
+            <tr>
+                <td>@p.Nombre</td>
+                <td>@p.Apellido</td>
+                <td>@p.Email</td>
+                <td>
+                    <a class="btn btn-info" asp-action="Details" asp-route-id="@p.Id">Ver Más</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<a class="btn btn-success" asp-action="Create">Agregar Propietario</a>
