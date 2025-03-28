@@ -66,7 +66,7 @@ namespace inmobiliariaNortonNoe.Controllers
 			try
 			{
 				var entidad = repositorio.ObtenerPorId(id);
-				return View();
+				return View(entidad);
 			}
 			catch (Exception ex)
 			{
@@ -133,7 +133,7 @@ namespace inmobiliariaNortonNoe.Controllers
 					return View(Inquilino);
 			}
 			catch (Exception ex)
-			{//poner breakpoints para detectar errores
+			{
 				throw;
 			}
 		}
@@ -144,10 +144,10 @@ namespace inmobiliariaNortonNoe.Controllers
 			try
 			{
 				var entidad = repositorio.ObtenerPorId(id);
-				return View(entidad);//pasa el modelo a la vista
+				return View(entidad);
 			}
 			catch (Exception ex)
-			{//poner breakpoints para detectar errores
+			{
 				throw;
 			}
 		}
@@ -155,7 +155,6 @@ namespace inmobiliariaNortonNoe.Controllers
 		// POST: Inquilino/Edit/5
 		[HttpPost]
 		[ValidateAntiForgeryToken]
-		//public ActionResult Edit(int id, IFormCollection collection)
 		public ActionResult Edit(int id, Inquilino entidad)
 		{
 			// Si en lugar de IFormCollection ponemos Inquilino, el enlace de datos lo hace el sistema

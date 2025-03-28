@@ -71,7 +71,7 @@ namespace inmobiliariaNortonNoe.Controllers
 			{
 				var entidad = repositorio.ObtenerPorId(id);
 				Console.WriteLine(entidad.Apellido);
-				return View();
+				return View(entidad);
 			}
 			catch (Exception ex)
 			{
