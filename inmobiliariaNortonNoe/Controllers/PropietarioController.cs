@@ -41,7 +41,7 @@ namespace inmobiliariaNortonNoe.Controllers
 
 		// GET: Propietario
 		[Route("[controller]/Lista")]
-		public ActionResult Lista(int pagina=1)
+		public ActionResult Lista(int pagina = 1)
 		{
 			try
 			{
@@ -123,22 +123,23 @@ namespace inmobiliariaNortonNoe.Controllers
 		// POST: Propietario/Create
 		[HttpPost]
 		[ValidateAntiForgeryToken]
-		public ActionResult Create(Propietario propietario)
+		public ActionResult Create(Propietario entidad)
 		{
 			try
 			{
-				if (ModelState.IsValid)
+				if (!ModelState.IsValid)
 				{
-					repositorio.Alta(propietario);
-					TempData["Id"] = propietario.Id;
-					return RedirectToAction(nameof(Index));
+					return View(entidad);
 				}
-				else
-					return View(propietario);
+
+				repositorio.Alta(entidad);
+				TempData["Mensaje"] = "Propietario creado correctamente";
+				return RedirectToAction(nameof(Index));
 			}
 			catch (Exception ex)
 			{
-				throw;
+				ModelState.AddModelError("", "Ocurrió un error al guardar los datos.");
+				return View(entidad);
 			}
 		}
 
@@ -161,24 +162,37 @@ namespace inmobiliariaNortonNoe.Controllers
 		[ValidateAntiForgeryToken]
 		public ActionResult Edit(int id, Propietario entidad)
 		{
-			Propietario p = null;
 			try
 			{
-				p = repositorio.ObtenerPorId(id);
+				if (!ModelState.IsValid)
+				{
+					return View(entidad);
+				}
+
+				Propietario p = repositorio.ObtenerPorId(id);
+				if (p == null)
+				{
+					return NotFound();
+				}
+
 				p.Nombre = entidad.Nombre;
 				p.Apellido = entidad.Apellido;
 				p.Dni = entidad.Dni;
 				p.Email = entidad.Email;
 				p.Telefono = entidad.Telefono;
+
 				repositorio.Modificacion(p);
 				TempData["Mensaje"] = "Datos guardados correctamente";
+
 				return RedirectToAction(nameof(Index));
 			}
 			catch (Exception ex)
 			{
-				throw;
+				ModelState.AddModelError("", "Ocurrió un error al guardar los datos.");
+				return View(entidad);
 			}
 		}
+
 		// GET: Propietario/Delete/5
 		public ActionResult Eliminar(int id)
 		{

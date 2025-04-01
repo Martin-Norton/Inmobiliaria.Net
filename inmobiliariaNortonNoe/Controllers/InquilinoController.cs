@@ -39,7 +39,7 @@ namespace inmobiliariaNortonNoe.Controllers
 
 		// GET: Inquilino
 		[Route("[controller]/Lista")]
-		public ActionResult Lista(int pagina=1)
+		public ActionResult Lista(int pagina = 1)
 		{
 			try
 			{
@@ -48,7 +48,7 @@ namespace inmobiliariaNortonNoe.Controllers
 				ViewBag.Pagina = pagina;
 				var total = repositorio.ObtenerCantidad();
 				ViewBag.TotalPaginas = total % tamaño == 0 ? total / tamaño : total / tamaño + 1;
-				
+
 				ViewBag.Id = TempData["Id"];
 				if (TempData.ContainsKey("Mensaje"))
 					ViewBag.Mensaje = TempData["Mensaje"];
@@ -122,19 +122,21 @@ namespace inmobiliariaNortonNoe.Controllers
 		{
 			try
 			{
-				if (ModelState.IsValid)// Pregunta si el modelo es válido
+				if (!ModelState.IsValid)
 				{
-					// Reemplazo de clave plana por clave con hash
-					repositorio.Alta(Inquilino);
-					TempData["Id"] = Inquilino.Id;
-					return RedirectToAction(nameof(Index));
-				}
-				else
 					return View(Inquilino);
+				}
+
+				repositorio.Alta(Inquilino);
+				TempData["Id"] = Inquilino.Id;
+				TempData["Mensaje"] = "Propietario creado correctamente";
+				return RedirectToAction(nameof(Index));
+
 			}
 			catch (Exception ex)
 			{
-				throw;
+				ModelState.AddModelError("", "Ocurrió un error al guardar los datos.");
+				return View(Inquilino);
 			}
 		}
 
@@ -152,25 +154,25 @@ namespace inmobiliariaNortonNoe.Controllers
 			}
 		}
 
+
 		// POST: Inquilino/Edit/5
 		[HttpPost]
 		[ValidateAntiForgeryToken]
 		public ActionResult Edit(int id, Inquilino entidad)
 		{
-			// Si en lugar de IFormCollection ponemos Inquilino, el enlace de datos lo hace el sistema
-			Inquilino p = null;
 			try
 			{
+				if (!ModelState.IsValid)
+				{
+					return View(entidad);
+				}
+
+				Inquilino p = repositorio.ObtenerPorId(id);
+				if (p == null)
+				{
+					return NotFound();
+				}
 				p = repositorio.ObtenerPorId(id);
-				// En caso de ser necesario usar: 
-				//
-				//Convert.ToInt32(collection["CAMPO"]);
-				//Convert.ToDecimal(collection["CAMPO"]);
-				//Convert.ToDateTime(collection["CAMPO"]);
-				//int.Parse(collection["CAMPO"]);
-				//decimal.Parse(collection["CAMPO"]);
-				//DateTime.Parse(collection["CAMPO"]);
-				////////////////////////////////////////
 				p.Nombre = entidad.Nombre;
 				p.Apellido = entidad.Apellido;
 				p.Dni = entidad.Dni;
@@ -181,8 +183,9 @@ namespace inmobiliariaNortonNoe.Controllers
 				return RedirectToAction(nameof(Index));
 			}
 			catch (Exception ex)
-			{//poner breakpoints para detectar errores
-				throw;
+			{
+				ModelState.AddModelError("", "Ocurrió un error al guardar los datos.");
+				return View(entidad);
 			}
 		}
 		// GET: Inquilino/Delete/5
@@ -194,7 +197,7 @@ namespace inmobiliariaNortonNoe.Controllers
 				return View(entidad);
 			}
 			catch (Exception ex)
-			{//poner breakpoints para detectar errores
+			{
 				throw;
 			}
 		}
