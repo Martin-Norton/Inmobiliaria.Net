@@ -7,10 +7,10 @@ namespace inmobiliariaNortonNoe.Models
 {
 	public interface IRepositorioContrato : IRepositorio<Contrato>
 	{
-		IList<Contrato> ObtenerPorInquilino(int inquilinoId);
-		IList<Contrato> ObtenerPorInmueble(int inmuebleId);
-		IList<Contrato> ObtenerVigentes();
-		IList<Contrato> ObtenerLista(int paginaNro, int tamPagina);
-		int ObtenerCantidad();
+		IList<Contrato> Alta(Contrato c);
+		IList<Contrato> Baja(int Id);
+		IList<Contrato> ObtenerTodos();
+		IList<Contrato> Modificacion(Contrato c);
+
 	}
 }

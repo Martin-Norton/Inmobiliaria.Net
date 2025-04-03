@@ -2,10 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using MySql.Data.MySqlClient;
-
 namespace inmobiliariaNortonNoe.Models
 {
-    public class RepositorioInmueble : RepositorioBase, IRepositorioInmueble
+    public class RepositorioInmueble : RepositorioBase
     {
         public RepositorioInmueble(IConfiguration configuration) : base(configuration)
         {
@@ -117,12 +116,12 @@ namespace inmobiliariaNortonNoe.Models
             return res;
         }
 
-        public Inmueble ObtenerPorId(int id)
+        public Inmueble ObtenerPorIdPropietario(int id)
         {
             Inmueble? i = null;
             using (var connection = new MySqlConnection(connectionString))
             {
-                string sql = "SELECT Id, Direccion, Ambientes, Superficie, Tipo, Uso, Precio, PropietarioId FROM Inmueble WHERE Id=@id";
+                string sql = "SELECT Id, Direccion, Ambientes, Superficie, Tipo, Uso, Precio, PropietarioId FROM Inmueble i JOIN Propietario p WHERE i.PropietarioId=p.Id ";
                 using (var command = new MySqlCommand(sql, connection))
                 {
                     command.Parameters.AddWithValue("@id", id);

@@ -24,12 +24,15 @@ namespace inmobiliariaNortonNoe.Models
         [Range(1, 20, ErrorMessage = "La cantidad de ambientes debe estar entre 1 y 20.")]
         public int Ambientes { get; set; }
 
+        [Required(ErrorMessage = "La superficie es obligatoria.")]
+        [Range(1, 20, ErrorMessage = "La superficie debe estar")]
+        public int Superficie { get; set; }
+
         [Required(ErrorMessage = "El precio es obligatorio.")]
         [Range(0, double.MaxValue, ErrorMessage = "El precio debe ser un valor positivo.")]
         public decimal Precio { get; set; }
 
         [Required(ErrorMessage = "El propietario es obligatorio.")]
         public int PropietarioId { get; set; }
-        public Propietario Propietario { get; set; }
     }
 }

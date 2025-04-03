@@ -10,9 +10,9 @@ namespace inmobiliariaNortonNoe.Controllers
 {
     public class PagoController : Controller
     {
-        private readonly IRepositorioPago repositorio;
+        private readonly IRepositorioPagos repositorio;
 
-        public PagoController(IRepositorioPago repo)
+        public PagoController(IRepositorioPagos repo)
         {
             this.repositorio = repo;
         }
@@ -118,7 +118,7 @@ namespace inmobiliariaNortonNoe.Controllers
                 }
 
                 p.ContratoId = entidad.ContratoId;
-                p.Fecha = entidad.Fecha;
+                p.FechaPago = entidad.FechaPago;
                 p.Monto = entidad.Monto;
                 p.NumeroPago = entidad.NumeroPago;
 

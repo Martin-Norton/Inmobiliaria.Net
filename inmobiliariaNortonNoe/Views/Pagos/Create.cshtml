@@ -29,15 +29,6 @@
         <input asp-for="Monto" type="number" step="0.01" class="form-control" required />
         <span asp-validation-for="Monto" class="text-danger"></span>
     </div>
-    <div class="form-group">
-        <label asp-for="MetodoPago"></label>
-        <select asp-for="MetodoPago" class="form-control">
-            <option value="Efectivo">Efectivo</option>
-            <option value="Transferencia">Transferencia</option>
-            <option value="Tarjeta">Tarjeta</option>
-        </select>
-        <span asp-validation-for="MetodoPago" class="text-danger"></span>
-    </div>
     <button type="submit" class="btn btn-primary">Guardar</button>
     <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
 </form>

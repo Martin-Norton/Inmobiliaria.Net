@@ -118,10 +118,10 @@ namespace inmobiliariaNortonNoe.Controllers
                 }
 
                 c.InmuebleId = entidad.InmuebleId;
-                c.LocatarioId = entidad.LocatarioId;
+                c.InquilinoId = entidad.InquilinoId;
                 c.FechaInicio = entidad.FechaInicio;
                 c.FechaFin = entidad.FechaFin;
-                c.MontoAlquiler = entidad.MontoAlquiler;
+                c.Monto = entidad.Monto;
 
                 repositorio.Modificacion(c);
                 TempData["Mensaje"] = "Datos guardados correctamente";

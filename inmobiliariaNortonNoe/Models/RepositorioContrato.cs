@@ -5,7 +5,7 @@ using MySql.Data.MySqlClient;
 
 namespace inmobiliariaNortonNoe.Models
 {
-    public class RepositorioContrato : RepositorioBase, IRepositorioContrato
+    public class RepositorioContrato : RepositorioBase
     {
         public RepositorioContrato(IConfiguration configuration) : base(configuration)
         {
