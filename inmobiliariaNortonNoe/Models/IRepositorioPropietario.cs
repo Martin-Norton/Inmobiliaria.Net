@@ -7,6 +7,7 @@ namespace inmobiliariaNortonNoe.Models
 {
 	public interface IRepositorioPropietario : IRepositorio<Propietario>
 	{
+		 IList<Propietario> ObtenerTodos();
 		Propietario ObtenerPorEmail(string email);
 		IList<Propietario> BuscarPorNombre(string nombre);
 		IList<Propietario> ObtenerLista(int paginaNro, int tamPagina);

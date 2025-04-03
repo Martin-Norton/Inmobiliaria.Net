@@ -1,170 +1,124 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using inmobiliariaNortonNoe.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
+using inmobiliariaNortonNoe.Models;
+using Microsoft.AspNetCore.Mvc.Rendering;
+
+
 
 namespace inmobiliariaNortonNoe.Controllers
 {
     public class InmuebleController : Controller
     {
         private readonly IRepositorioInmueble repositorio;
+        private readonly IRepositorioPropietario repositorioPropietario;
 
-        public InmuebleController(IRepositorioInmueble repo)
+        public InmuebleController(IRepositorioInmueble repo, IRepositorioPropietario repositorioPropietario)
         {
+            this.repositorioPropietario = repositorioPropietario;
             this.repositorio = repo;
         }
-
-        // GET: Inmueble
-        [Route("[controller]/Index")]
         public ActionResult Index()
         {
-            try
-            {
-                var lista = repositorio.ObtenerTodos();
-                ViewBag.Id = TempData["Id"];
-                if (TempData.ContainsKey("Mensaje"))
-                    ViewBag.Mensaje = TempData["Mensaje"];
-                return View(lista);
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
+            var lista = repositorio.ObtenerTodos();
+            return View(lista);
         }
 
-        // GET: Inmueble/Details/5
+        public ActionResult Lista(int pagina = 1)
+        {
+            int tamaño = 5;
+            var lista = repositorio.ObtenerLista(Math.Max(pagina, 1), tamaño);
+            ViewBag.Pagina = pagina;
+            int total = repositorio.ObtenerCantidad();
+            ViewBag.TotalPaginas = total % tamaño == 0 ? total / tamaño : total / tamaño + 1;
+            return View(lista);
+        }
+
         public ActionResult Details(int id)
         {
-            try
-            {
-                var entidad = repositorio.ObtenerPorId(id);
-                return View(entidad);
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
+            var entidad = repositorio.ObtenerPorId(id);
+            return View(entidad);
         }
 
-        // GET: Inmueble/Create
-        public ActionResult Create()
+        public IActionResult Busqueda()
         {
-            try
-            {
-                return View();
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
+            return View();
         }
 
-        // POST: Inmueble/Create
+        [Route("[controller]/Buscar/{q}")]
+        public IActionResult Buscar(string q)
+        {
+            var res = repositorio.BuscarPorTipo(q);
+            return Json(new { Datos = res });
+        }
+
+        public IActionResult Create()
+        {
+            var listaPropietarios = repositorioPropietario.ObtenerTodos();
+
+            if (listaPropietarios == null || listaPropietarios.Count == 0)
+            {
+                TempData["Mensaje"] = "No hay propietarios disponibles.";
+                return RedirectToAction("Index");
+            }
+
+            ViewBag.Propietarios = new SelectList(listaPropietarios, "Id", "Nombre");
+
+            if (TempData.ContainsKey("Mensaje"))
+                ViewBag.Mensaje = TempData["Mensaje"];
+
+            return View(new Inmueble());
+        }
+
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(Inmueble entidad)
+        public ActionResult Create(Inmueble inmueble)
         {
-            try
-            {
-                if (!ModelState.IsValid)
-                {
-                    return View(entidad);
-                }
+            if (!ModelState.IsValid) return View(inmueble);
 
-                repositorio.Alta(entidad);
-                TempData["Mensaje"] = "Inmueble creado correctamente";
-                return RedirectToAction(nameof(Index));
-            }
-            catch (Exception ex)
-            {
-                ModelState.AddModelError("", "Ocurrió un error al guardar los datos.");
-                return View(entidad);
-            }
+            repositorio.Alta(inmueble);
+            TempData["Mensaje"] = "Inmueble creado correctamente";
+            return RedirectToAction(nameof(Index));
         }
 
-        // GET: Inmueble/Edit/5
         public ActionResult Edit(int id)
         {
-            try
-            {
-                var entidad = repositorio.ObtenerPorId(id);
-                return View(entidad);
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
+            var entidad = repositorio.ObtenerPorId(id);
+            return View(entidad);
         }
 
-        // POST: Inmueble/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Edit(int id, Inmueble entidad)
         {
-            try
-            {
-                if (!ModelState.IsValid)
-                {
-                    return View(entidad);
-                }
+            if (!ModelState.IsValid) return View(entidad);
 
-                Inmueble i = repositorio.ObtenerPorId(id);
-                if (i == null)
-                {
-                    return NotFound();
-                }
+            var p = repositorio.ObtenerPorId(id);
+            if (p == null) return NotFound();
 
-                i.Direccion = entidad.Direccion;
-                i.Ambientes = entidad.Ambientes;
-                i.Tipo = entidad.Tipo;
-                i.Uso = entidad.Uso;
-                i.Precio = entidad.Precio;
-                i.PropietarioId = entidad.PropietarioId;
-
-                repositorio.Modificacion(i);
-                TempData["Mensaje"] = "Datos guardados correctamente";
-
-                return RedirectToAction(nameof(Index));
-            }
-            catch (Exception ex)
-            {
-                ModelState.AddModelError("", "Ocurrió un error al guardar los datos.");
-                return View(entidad);
-            }
+            p.Direccion = entidad.Direccion;
+            p.Precio = entidad.Precio;
+            p.Tipo = entidad.Tipo;
+            p.Uso = entidad.Uso;
+            repositorio.Modificacion(p);
+            TempData["Mensaje"] = "Datos actualizados correctamente";
+            return RedirectToAction(nameof(Index));
         }
 
-        // GET: Inmueble/Delete/5
         public ActionResult Eliminar(int id)
         {
-            try
-            {
-                var entidad = repositorio.ObtenerPorId(id);
-                return View(entidad);
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
+            var entidad = repositorio.ObtenerPorId(id);
+            return View(entidad);
         }
 
-        // POST: Inmueble/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Eliminar(int id, Inmueble entidad)
         {
-            try
-            {
-                repositorio.Baja(id);
-                TempData["Mensaje"] = "Eliminación realizada correctamente";
-                return RedirectToAction(nameof(Index));
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
+            repositorio.Baja(id);
+            TempData["Mensaje"] = "Inmueble eliminado correctamente";
+            return RedirectToAction(nameof(Index));
         }
     }
 }

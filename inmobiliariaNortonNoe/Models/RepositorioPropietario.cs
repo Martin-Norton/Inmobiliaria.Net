@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using  MySql.Data.MySqlClient;
+using MySql.Data.MySqlClient;
 namespace inmobiliariaNortonNoe.Models
 {
 	public class RepositorioPropietario : RepositorioBase, IRepositorioPropietario
@@ -27,7 +27,7 @@ namespace inmobiliariaNortonNoe.Models
 					command.Parameters.AddWithValue("@dni", p.Dni);
 					command.Parameters.AddWithValue("@telefono", p.Telefono);
 					command.Parameters.AddWithValue("@email", p.Email);
-					
+
 					connection.Open();
 					res = Convert.ToInt32(command.ExecuteScalar());
 					p.Id = res;
@@ -102,7 +102,7 @@ namespace inmobiliariaNortonNoe.Models
 							Dni = reader.GetString("Dni"),
 							Telefono = reader.GetString("Telefono"),
 							Email = reader.GetString("Email"),
-							
+
 						};
 						res.Add(p);
 					}
@@ -137,7 +137,7 @@ namespace inmobiliariaNortonNoe.Models
 							Dni = reader.GetString("Dni"),
 							Telefono = reader.GetString("Telefono"),
 							Email = reader.GetString("Email"),
-							
+
 						};
 						res.Add(p);
 					}
@@ -182,7 +182,7 @@ namespace inmobiliariaNortonNoe.Models
 					Id, Nombre, Apellido, Dni, Telefono, Email 
 					FROM Propietario
 					WHERE Id=@id";
-			
+
 				using (var command = new MySqlCommand(sql, connection))
 				{
 					command.Parameters.Add("@id", MySqlDbType.Int32).Value = id;
@@ -200,7 +200,7 @@ namespace inmobiliariaNortonNoe.Models
 							Dni = reader.GetString("Dni"),
 							Telefono = reader.GetString("Telefono"),
 							Email = reader.GetString("Email"),
-							
+
 						};
 						Console.WriteLine($"Propietario encontrado: {p.Nombre} {p.Apellido}");
 					}
@@ -235,7 +235,7 @@ namespace inmobiliariaNortonNoe.Models
 							Dni = reader.GetString("Dni"),
 							Telefono = reader.GetString("Telefono"),
 							Email = reader.GetString("Email"),
-							
+
 						};
 					}
 					connection.Close();
@@ -271,7 +271,7 @@ namespace inmobiliariaNortonNoe.Models
 							Dni = reader.GetString("Dni"),
 							Telefono = reader.GetString("Telefono"),
 							Email = reader.GetString("Email"),
-							
+
 						};
 						res.Add(p);
 					}
@@ -280,5 +280,5 @@ namespace inmobiliariaNortonNoe.Models
 			}
 			return res;
 		}
-	}
+    }
 }

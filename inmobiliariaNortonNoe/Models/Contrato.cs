@@ -1,4 +1,3 @@
-using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace inmobiliariaNortonNoe.Models
@@ -6,30 +5,31 @@ namespace inmobiliariaNortonNoe.Models
     public class Contrato
     {
         [Key]
-        [Display(Name = "Código Int")]
-        public int Id { get; set; }
+        [Display(Name = "Código Contrato")]
+        public int ID_Contrato { get; set; }
 
         [Required(ErrorMessage = "El inmueble es obligatorio.")]
-        public int InmuebleId { get; set; }
-        public Inmueble Inmueble { get; set; }
+        public int ID_Inmueble { get; set; }
 
         [Required(ErrorMessage = "El inquilino es obligatorio.")]
-        public int InquilinoId { get; set; }
-        public Inquilino Inquilino { get; set; }
+        public int ID_Inquilino { get; set; }
 
         [Required(ErrorMessage = "La fecha de inicio es obligatoria.")]
         [DataType(DataType.Date)]
-        public DateTime FechaInicio { get; set; }
+        public DateTime Fecha_Inicio { get; set; }
 
         [Required(ErrorMessage = "La fecha de finalización es obligatoria.")]
         [DataType(DataType.Date)]
-        public DateTime FechaFin { get; set; }
+        public DateTime Fecha_Fin { get; set; }
 
-        [Required(ErrorMessage = "El monto es obligatorio.")]
-        [Range(0, double.MaxValue, ErrorMessage = "El monto debe ser un valor positivo.")]
-        public decimal Monto { get; set; }
+        [Required(ErrorMessage = "El monto del alquiler es obligatorio.")]
+        [Range(1, double.MaxValue, ErrorMessage = "El monto del alquiler debe ser mayor a 0.")]
+        public decimal Monto_Alquiler { get; set; }
+
+        [Range(0, double.MaxValue, ErrorMessage = "La multa no puede ser negativa.")]
+        public decimal Multa { get; set; }
 
         [Required(ErrorMessage = "El estado del contrato es obligatorio.")]
-        public bool Activo { get; set; }
+        public string Estado { get; set; } // Vigente, Terminado, Anulado
     }
 }

@@ -1,0 +1,35 @@
+@model IEnumerable<Contrato>
+@{
+    ViewData["Title"] = "Lista de Contratos";
+}
+<h2>Contratos</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Inmueble</th>
+            <th>Inquilino</th>
+            <th>Fecha Inicio</th>
+            <th>Fecha Fin</th>
+            <th>Monto</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var c in Model)
+        {
+            <tr>
+                <td>@c.ID_Inmueble</td>
+                <td>@c.ID_Inquilino</td>
+                <td>@c.Fecha_Inicio.ToShortDateString()</td>
+                <td>@c.Fecha_Fin.ToShortDateString()</td>
+                <td>@c.Monto_Alquiler</td>
+                <td>
+                    <a class="btn btn-info" asp-action="Details" asp-route-id="@c.ID_Contrato">Ver Más</a>
+                    <a class="btn btn-warning" asp-action="Edit" asp-route-id="@c.ID_Contrato">Editar</a>
+                    <a class="btn btn-danger" asp-action="Eliminar" asp-route-id="@c.ID_Contrato">Eliminar</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<a class="btn btn-success" asp-action="Create">Agregar Contrato</a>

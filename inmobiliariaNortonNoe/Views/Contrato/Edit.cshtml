@@ -1,9 +1,10 @@
 @model Contrato
 @{
-    ViewData["Title"] = "Crear Contrato";
+    ViewData["Title"] = "Editar Contrato";
 }
-<h2>Crear Contrato</h2>
-<form asp-action="Create" method="post">
+<h2>Editar Contrato</h2>
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="ID_Contrato" />
     <div class="form-group">
         <label asp-for="ID_Inmueble"></label>
         <input asp-for="ID_Inmueble" class="form-control" />

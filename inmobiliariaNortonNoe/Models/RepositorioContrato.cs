@@ -1,35 +1,39 @@
 using System;
 using System.Collections.Generic;
-using System.Data;
 using MySql.Data.MySqlClient;
+using System.Data;
 
 namespace inmobiliariaNortonNoe.Models
 {
-    public class RepositorioContrato : RepositorioBase
+    public class RepositorioContrato : RepositorioBase, IRepositorioContrato
     {
         public RepositorioContrato(IConfiguration configuration) : base(configuration)
         {
         }
 
-        public int Alta(Contrato c)
+        public int Alta(Contrato contrato)
         {
             int res = -1;
             using (var connection = new MySqlConnection(connectionString))
             {
-                string sql = @"INSERT INTO Contrato (InmuebleId, InquilinoId, FechaInicio, FechaFin, Monto) 
-                                VALUES (@inmuebleId, @inquilinoId, @fechaInicio, @fechaFin, @monto);
-                                SELECT LAST_INSERT_ID();";
+                string sql = @"INSERT INTO Contrato 
+                    (ID_Inmueble, ID_Inquilino, Fecha_Inicio, Fecha_Fin, Monto_Alquiler, Multa, Estado) 
+                    VALUES (@idInmueble, @idInquilino, @fechaInicio, @fechaFin, @montoAlquiler, @multa, @estado);
+                    SELECT LAST_INSERT_ID();";
                 using (var command = new MySqlCommand(sql, connection))
                 {
-                    command.Parameters.AddWithValue("@inmuebleId", c.InmuebleId);
-                    command.Parameters.AddWithValue("@inquilinoId", c.InquilinoId);
-                    command.Parameters.AddWithValue("@fechaInicio", c.FechaInicio);
-                    command.Parameters.AddWithValue("@fechaFin", c.FechaFin);
-                    command.Parameters.AddWithValue("@monto", c.Monto);
+                    command.CommandType = CommandType.Text;
+                    command.Parameters.AddWithValue("@idInmueble", contrato.ID_Inmueble);
+                    command.Parameters.AddWithValue("@idInquilino", contrato.ID_Inquilino);
+                    command.Parameters.AddWithValue("@fechaInicio", contrato.Fecha_Inicio);
+                    command.Parameters.AddWithValue("@fechaFin", contrato.Fecha_Fin);
+                    command.Parameters.AddWithValue("@montoAlquiler", contrato.Monto_Alquiler);
+                    command.Parameters.AddWithValue("@multa", contrato.Multa);
+                    command.Parameters.AddWithValue("@estado", contrato.Estado);
                     
                     connection.Open();
                     res = Convert.ToInt32(command.ExecuteScalar());
-                    c.Id = res;
+                    contrato.ID_Contrato = res;
                     connection.Close();
                 }
             }
@@ -41,7 +45,7 @@ namespace inmobiliariaNortonNoe.Models
             int res = -1;
             using (var connection = new MySqlConnection(connectionString))
             {
-                string sql = "DELETE FROM Contrato WHERE Id = @id";
+                string sql = @"DELETE FROM Contrato WHERE ID_Contrato = @id";
                 using (var command = new MySqlCommand(sql, connection))
                 {
                     command.Parameters.AddWithValue("@id", id);
@@ -53,23 +57,26 @@ namespace inmobiliariaNortonNoe.Models
             return res;
         }
 
-        public int Modificacion(Contrato c)
+        public int Modificacion(Contrato contrato)
         {
             int res = -1;
             using (var connection = new MySqlConnection(connectionString))
             {
-                string sql = @"UPDATE Contrato SET 
-                                InmuebleId=@inmuebleId, InquilinoId=@inquilinoId, 
-                                FechaInicio=@fechaInicio, FechaFin=@fechaFin, Monto=@monto 
-                                WHERE Id=@id";
+                string sql = @"UPDATE Contrato 
+                    SET ID_Inmueble=@idInmueble, ID_Inquilino=@idInquilino, Fecha_Inicio=@fechaInicio, 
+                        Fecha_Fin=@fechaFin, Monto_Alquiler=@montoAlquiler, Multa=@multa, Estado=@estado
+                    WHERE ID_Contrato=@id";
                 using (var command = new MySqlCommand(sql, connection))
                 {
-                    command.Parameters.AddWithValue("@inmuebleId", c.InmuebleId);
-                    command.Parameters.AddWithValue("@inquilinoId", c.InquilinoId);
-                    command.Parameters.AddWithValue("@fechaInicio", c.FechaInicio);
-                    command.Parameters.AddWithValue("@fechaFin", c.FechaFin);
-                    command.Parameters.AddWithValue("@monto", c.Monto);
-                    command.Parameters.AddWithValue("@id", c.Id);
+                    command.Parameters.AddWithValue("@id", contrato.ID_Contrato);
+                    command.Parameters.AddWithValue("@idInmueble", contrato.ID_Inmueble);
+                    command.Parameters.AddWithValue("@idInquilino", contrato.ID_Inquilino);
+                    command.Parameters.AddWithValue("@fechaInicio", contrato.Fecha_Inicio);
+                    command.Parameters.AddWithValue("@fechaFin", contrato.Fecha_Fin);
+                    command.Parameters.AddWithValue("@montoAlquiler", contrato.Monto_Alquiler);
+                    command.Parameters.AddWithValue("@multa", contrato.Multa);
+                    command.Parameters.AddWithValue("@estado", contrato.Estado);
+                    
                     connection.Open();
                     res = command.ExecuteNonQuery();
                     connection.Close();
@@ -83,23 +90,25 @@ namespace inmobiliariaNortonNoe.Models
             IList<Contrato> res = new List<Contrato>();
             using (var connection = new MySqlConnection(connectionString))
             {
-                string sql = "SELECT Id, InmuebleId, InquilinoId, FechaInicio, FechaFin, Monto FROM Contrato";
+                string sql = @"SELECT * FROM Contrato";
                 using (var command = new MySqlCommand(sql, connection))
                 {
                     connection.Open();
                     var reader = command.ExecuteReader();
                     while (reader.Read())
                     {
-                        Contrato c = new Contrato
+                        Contrato contrato = new Contrato
                         {
-                            Id = reader.GetInt32("Id"),
-                            InmuebleId = reader.GetInt32("InmuebleId"),
-                            InquilinoId = reader.GetInt32("InquilinoId"),
-                            FechaInicio = reader.GetDateTime("FechaInicio"),
-                            FechaFin = reader.GetDateTime("FechaFin"),
-                            Monto = reader.GetDecimal("Monto")
+                            ID_Contrato = reader.GetInt32("ID_Contrato"),
+                            ID_Inmueble = reader.GetInt32("ID_Inmueble"),
+                            ID_Inquilino = reader.GetInt32("ID_Inquilino"),
+                            Fecha_Inicio = reader.GetDateTime("Fecha_Inicio"),
+                            Fecha_Fin = reader.GetDateTime("Fecha_Fin"),
+                            Monto_Alquiler = reader.GetDecimal("Monto_Alquiler"),
+                            Multa = reader.GetDecimal("Multa"),
+                            Estado = reader.GetString("Estado")
                         };
-                        res.Add(c);
+                        res.Add(contrato);
                     }
                     connection.Close();
                 }
@@ -109,10 +118,10 @@ namespace inmobiliariaNortonNoe.Models
 
         public Contrato ObtenerPorId(int id)
         {
-            Contrato c = null;
+            Contrato contrato = null;
             using (var connection = new MySqlConnection(connectionString))
             {
-                string sql = "SELECT Id, InmuebleId, InquilinoId, FechaInicio, FechaFin, Monto FROM Contrato WHERE Id=@id";
+                string sql = @"SELECT * FROM Contrato WHERE ID_Contrato=@id";
                 using (var command = new MySqlCommand(sql, connection))
                 {
                     command.Parameters.AddWithValue("@id", id);
@@ -120,20 +129,144 @@ namespace inmobiliariaNortonNoe.Models
                     var reader = command.ExecuteReader();
                     if (reader.Read())
                     {
-                        c = new Contrato
+                        contrato = new Contrato
                         {
-                            Id = reader.GetInt32("Id"),
-                            InmuebleId = reader.GetInt32("InmuebleId"),
-                            InquilinoId = reader.GetInt32("InquilinoId"),
-                            FechaInicio = reader.GetDateTime("FechaInicio"),
-                            FechaFin = reader.GetDateTime("FechaFin"),
-                            Monto = reader.GetDecimal("Monto")
+                            ID_Contrato = reader.GetInt32("ID_Contrato"),
+                            ID_Inmueble = reader.GetInt32("ID_Inmueble"),
+                            ID_Inquilino = reader.GetInt32("ID_Inquilino"),
+                            Fecha_Inicio = reader.GetDateTime("Fecha_Inicio"),
+                            Fecha_Fin = reader.GetDateTime("Fecha_Fin"),
+                            Monto_Alquiler = reader.GetDecimal("Monto_Alquiler"),
+                            Multa = reader.GetDecimal("Multa"),
+                            Estado = reader.GetString("Estado")
                         };
                     }
                     connection.Close();
                 }
             }
-            return c;
+            return contrato;
         }
+public Contrato ObtenerPorInmueble(int idInmueble)
+        {
+            Contrato contrato = null;
+            using (var connection = new MySqlConnection(connectionString))
+            {
+                string sql = @"SELECT * FROM Contrato WHERE ID_Inmueble = @idInmueble";
+                using (var command = new MySqlCommand(sql, connection))
+                {
+                    command.Parameters.AddWithValue("@idInmueble", idInmueble);
+                    connection.Open();
+                    using (var reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            contrato = MapearContrato(reader);
+                        }
+                    }
+                    connection.Close();
+                }
+            }
+            return contrato;
+        }
+
+        public IList<Contrato> ObtenerVigentes()
+        {
+            List<Contrato> contratos = new List<Contrato>();
+            using (var connection = new MySqlConnection(connectionString))
+            {
+                string sql = @"SELECT * FROM Contrato WHERE Estado = 'Vigente'";
+                using (var command = new MySqlCommand(sql, connection))
+                {
+                    connection.Open();
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            contratos.Add(MapearContrato(reader));
+                        }
+                    }
+                    connection.Close();
+                }
+            }
+            return contratos;
+        }
+
+        public IList<Contrato> ObtenerPorInquilino(int idInquilino)
+        {
+            List<Contrato> contratos = new List<Contrato>();
+            using (var connection = new MySqlConnection(connectionString))
+            {
+                string sql = @"SELECT * FROM Contrato WHERE ID_Inquilino = @idInquilino";
+                using (var command = new MySqlCommand(sql, connection))
+                {
+                    command.Parameters.AddWithValue("@idInquilino", idInquilino);
+                    connection.Open();
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            contratos.Add(MapearContrato(reader));
+                        }
+                    }
+                    connection.Close();
+                }
+            }
+            return contratos;
+        }
+
+        public IList<Contrato> ObtenerLista(int paginaNro, int tamPagina)
+        {
+            List<Contrato> contratos = new List<Contrato>();
+            using (var connection = new MySqlConnection(connectionString))
+            {
+                string sql = @"SELECT * FROM Contrato LIMIT @tamPagina OFFSET @offset";
+                using (var command = new MySqlCommand(sql, connection))
+                {
+                    command.Parameters.AddWithValue("@tamPagina", tamPagina);
+                    command.Parameters.AddWithValue("@offset", (paginaNro - 1) * tamPagina);
+                    connection.Open();
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            contratos.Add(MapearContrato(reader));
+                        }
+                    }
+                    connection.Close();
+                }
+            }
+            return contratos;
+        }
+
+        public int ObtenerCantidad()
+        {
+            int cantidad = 0;
+            using (var connection = new MySqlConnection(connectionString))
+            {
+                string sql = @"SELECT COUNT(ID_Contrato) FROM Contrato";
+                using (var command = new MySqlCommand(sql, connection))
+                {
+                    connection.Open();
+                    cantidad = Convert.ToInt32(command.ExecuteScalar());
+                    connection.Close();
+                }
+            }
+            return cantidad;
+        }
+        private Contrato MapearContrato(MySqlDataReader reader)
+        {
+            return new Contrato
+            {
+                ID_Contrato = reader.GetInt32("ID_Contrato"),
+                ID_Inmueble = reader.GetInt32("ID_Inmueble"),
+                ID_Inquilino = reader.GetInt32("ID_Inquilino"),
+                Fecha_Inicio = reader.GetDateTime("Fecha_Inicio"),
+                Fecha_Fin = reader.GetDateTime("Fecha_Fin"),
+                Monto_Alquiler = reader.GetDecimal("Monto_Alquiler"),
+                Multa = reader.GetDecimal("Multa"),
+                Estado = reader.GetString("Estado")
+            };
+        }
+
     }
 }

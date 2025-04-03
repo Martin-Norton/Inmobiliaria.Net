@@ -1,5 +1,6 @@
- @model Inmueble
-    <h2>Detalles del Inmueble</h2>
+@model Inmueble
+    <h2>Eliminar Inmueble</h2>
+    <h3>¿Estás seguro de que deseas eliminar este inmueble?</h3>
     <dl class="row">
         <dt class="col-sm-2">Dirección:</dt>
         <dd class="col-sm-10">@Model.Direccion</dd>
@@ -10,5 +11,8 @@
         <dt class="col-sm-2">Uso:</dt>
         <dd class="col-sm-10">@Model.Uso</dd>
     </dl>
-    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Editar</a>
-    <a asp-action="Index" class="btn btn-secondary">Volver</a>
+    <form asp-action="Eliminar" method="post">
+        <input type="hidden" asp-for="Id" />
+        <button type="submit" class="btn btn-danger">Eliminar</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+    </form>

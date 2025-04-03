@@ -5,34 +5,32 @@ namespace inmobiliariaNortonNoe.Models
     public class Inmueble
     {
         [Key]
-        [Display(Name = "Código Int")]
+        [Display(Name = "Código Inmueble")]
         public int Id { get; set; }
 
         [Required(ErrorMessage = "La dirección es obligatoria.")]
         [StringLength(100, ErrorMessage = "La dirección no puede superar los 100 caracteres.")]
         public string Direccion { get; set; }
 
-        [Required(ErrorMessage = "El tipo de inmueble es obligatorio.")]
-        [StringLength(50, ErrorMessage = "El tipo no puede superar los 50 caracteres.")]
-        public string Tipo { get; set; }
+        [Required(ErrorMessage = "El uso es obligatorio.")]
+        public string Uso { get; set; } // Comercial o Residencial
 
-        [Required(ErrorMessage = "El uso del inmueble es obligatorio.")]
-        [StringLength(50, ErrorMessage = "El uso no puede superar los 50 caracteres.")]
-        public string Uso { get; set; }
+        [Required(ErrorMessage = "El tipo es obligatorio.")]
+        public string Tipo { get; set; } // Local, Depósito, Casa, Departamento, etc.
 
-        [Required(ErrorMessage = "La cantidad de ambientes es obligatoria.")]
-        [Range(1, 20, ErrorMessage = "La cantidad de ambientes debe estar entre 1 y 20.")]
-        public int Ambientes { get; set; }
+        [Range(1, int.MaxValue, ErrorMessage = "La cantidad de ambientes debe ser mayor a 0.")]
+        public int Cantidad_Ambientes { get; set; }
 
-        [Required(ErrorMessage = "La superficie es obligatoria.")]
-        [Range(1, 20, ErrorMessage = "La superficie debe estar")]
-        public int Superficie { get; set; }
+        public string Coordenadas { get; set; } // Ubicación geográfica opcional
 
         [Required(ErrorMessage = "El precio es obligatorio.")]
-        [Range(0, double.MaxValue, ErrorMessage = "El precio debe ser un valor positivo.")]
+        [Range(1, double.MaxValue, ErrorMessage = "El precio debe ser mayor a 0.")]
         public decimal Precio { get; set; }
 
+        [Required(ErrorMessage = "El estado es obligatorio.")]
+        public string Estado { get; set; } // Disponible, No disponible, Suspendido
+
         [Required(ErrorMessage = "El propietario es obligatorio.")]
-        public int PropietarioId { get; set; }
+        public int Id_Propietario { get; set; }
     }
 }

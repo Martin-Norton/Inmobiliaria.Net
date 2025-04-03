@@ -8,13 +8,16 @@ using inmobiliariaNortonNoe.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.WebHost.UseUrls("http://localhost:5000","https://localhost:5001", "http://*:5000", "https://*:5001");
-
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddScoped<IRepositorioPropietario, RepositorioPropietario>();
 
 builder.Services.AddScoped<IRepositorioInquilino, RepositorioInquilino>();
+
+builder.Services.AddScoped<IRepositorioInmueble, RepositorioInmueble>();
+
+builder.Services.AddScoped<IRepositorioContrato, RepositorioContrato>();    
+
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())

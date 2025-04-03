@@ -1,10 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using inmobiliariaNortonNoe.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
+using inmobiliariaNortonNoe.Models;
 
 namespace inmobiliariaNortonNoe.Controllers
 {
@@ -17,153 +14,103 @@ namespace inmobiliariaNortonNoe.Controllers
             this.repositorio = repo;
         }
 
-        // GET: Contrato
-        [Route("[controller]/Index")]
         public ActionResult Index()
         {
-            try
-            {
-                var lista = repositorio.ObtenerTodos();
-                ViewBag.Id = TempData["Id"];
-                if (TempData.ContainsKey("Mensaje"))
-                    ViewBag.Mensaje = TempData["Mensaje"];
-                return View(lista);
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
+            var lista = repositorio.ObtenerTodos();
+            return View(lista);
         }
 
-        // GET: Contrato/Details/5
+        public ActionResult Lista(int pagina = 1)
+        {
+            int tamaño = 5;
+            var lista = repositorio.ObtenerLista(Math.Max(pagina, 1), tamaño);
+            ViewBag.Pagina = pagina;
+            int total = repositorio.ObtenerCantidad();
+            ViewBag.TotalPaginas = total % tamaño == 0 ? total / tamaño : total / tamaño + 1;
+            return View(lista);
+        }
+
         public ActionResult Details(int id)
         {
-            try
-            {
-                var entidad = repositorio.ObtenerPorId(id);
-                return View(entidad);
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
+            var entidad = repositorio.ObtenerPorId(id);
+            return View(entidad);
         }
 
-        // GET: Contrato/Create
         public ActionResult Create()
         {
-            try
-            {
-                return View();
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
+            return View();
         }
 
-        // POST: Contrato/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(Contrato entidad)
+        public ActionResult Create(Contrato contrato)
         {
-            try
-            {
-                if (!ModelState.IsValid)
-                {
-                    return View(entidad);
-                }
+            if (!ModelState.IsValid) return View(contrato);
 
-                repositorio.Alta(entidad);
-                TempData["Mensaje"] = "Contrato creado correctamente";
-                return RedirectToAction(nameof(Index));
-            }
-            catch (Exception ex)
-            {
-                ModelState.AddModelError("", "Ocurrió un error al guardar los datos.");
-                return View(entidad);
-            }
+            repositorio.Alta(contrato);
+            TempData["Mensaje"] = "Contrato creado correctamente";
+            return RedirectToAction(nameof(Index));
         }
 
-        // GET: Contrato/Edit/5
         public ActionResult Edit(int id)
         {
-            try
-            {
-                var entidad = repositorio.ObtenerPorId(id);
-                return View(entidad);
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
+            var entidad = repositorio.ObtenerPorId(id);
+            return View(entidad);
         }
 
-        // POST: Contrato/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Edit(int id, Contrato entidad)
         {
-            try
-            {
-                if (!ModelState.IsValid)
-                {
-                    return View(entidad);
-                }
+            if (!ModelState.IsValid) return View(entidad);
 
-                Contrato c = repositorio.ObtenerPorId(id);
-                if (c == null)
-                {
-                    return NotFound();
-                }
+            var p = repositorio.ObtenerPorId(id);
+            if (p == null) return NotFound();
 
-                c.InmuebleId = entidad.InmuebleId;
-                c.InquilinoId = entidad.InquilinoId;
-                c.FechaInicio = entidad.FechaInicio;
-                c.FechaFin = entidad.FechaFin;
-                c.Monto = entidad.Monto;
-
-                repositorio.Modificacion(c);
-                TempData["Mensaje"] = "Datos guardados correctamente";
-
-                return RedirectToAction(nameof(Index));
-            }
-            catch (Exception ex)
-            {
-                ModelState.AddModelError("", "Ocurrió un error al guardar los datos.");
-                return View(entidad);
-            }
+            p.Fecha_Inicio = entidad.Fecha_Inicio;
+            p.Fecha_Fin = entidad.Fecha_Fin;
+            p.Monto_Alquiler = entidad.Monto_Alquiler;
+            p.Multa = entidad.Multa;
+            p.Estado = entidad.Estado;
+            repositorio.Modificacion(p);
+            TempData["Mensaje"] = "Datos actualizados correctamente";
+            return RedirectToAction(nameof(Index));
         }
 
-        // GET: Contrato/Delete/5
         public ActionResult Eliminar(int id)
         {
-            try
-            {
-                var entidad = repositorio.ObtenerPorId(id);
-                return View(entidad);
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
+            var entidad = repositorio.ObtenerPorId(id);
+            return View(entidad);
         }
 
-        // POST: Contrato/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Eliminar(int id, Contrato entidad)
         {
-            try
-            {
-                repositorio.Baja(id);
-                TempData["Mensaje"] = "Eliminación realizada correctamente";
-                return RedirectToAction(nameof(Index));
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
+            repositorio.Baja(id);
+            TempData["Mensaje"] = "Contrato eliminado correctamente";
+            return RedirectToAction(nameof(Index));
+        }
+
+        [Route("[controller]/ObtenerPorInmueble/{id}")]
+        public IActionResult ObtenerPorInmueble(int id)
+        {
+            var res = repositorio.ObtenerPorInmueble(id);
+            return Json(new { Datos = res });
+        }
+
+        [Route("[controller]/ObtenerVigentes")]
+        public IActionResult ObtenerVigentes()
+        {
+            var res = repositorio.ObtenerVigentes();
+            return Json(new { Datos = res });
+        }
+
+        [Route("[controller]/ObtenerPorInquilino/{id}")]
+        public IActionResult ObtenerPorInquilino(int id)
+        {
+            var res = repositorio.ObtenerPorInquilino(id);
+            return Json(new { Datos = res });
         }
     }
 }
