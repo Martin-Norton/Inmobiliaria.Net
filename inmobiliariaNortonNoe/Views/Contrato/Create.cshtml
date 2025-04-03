@@ -1,0 +1,55 @@
+@model inmobiliariaNortonNoe.Models.Contrato
+
+@{
+    ViewData["Title"] = "Crear Contrato";
+}
+
+<h2>Crear Contrato</h2>
+
+<form asp-action="Create" method="post">
+    <div class="form-group">
+        <label asp-for="InmuebleId"></label>
+        <select asp-for="InmuebleId" asp-items="ViewBag.Inmuebles" class="form-control" required>
+            <option value="">Seleccione un Inmueble</option>
+        </select>
+        <span asp-validation-for="InmuebleId" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="InquilinoId"></label>
+        <select asp-for="InquilinoId" asp-items="ViewBag.Inquilinos" class="form-control" required>
+            <option value="">Seleccione un Inquilino</option>
+        </select>
+        <span asp-validation-for="InquilinoId" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="FechaInicio"></label>
+        <input asp-for="FechaInicio" type="date" class="form-control" required />
+        <span asp-validation-for="FechaInicio" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="FechaFin"></label>
+        <input asp-for="FechaFin" type="date" class="form-control" required />
+        <span asp-validation-for="FechaFin" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="MontoAlquiler"></label>
+        <input asp-for="MontoAlquiler" type="number" step="0.01" class="form-control" required />
+        <span asp-validation-for="MontoAlquiler" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Deposito"></label>
+        <input asp-for="Deposito" type="number" step="0.01" class="form-control" required />
+        <span asp-validation-for="Deposito" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Estado"></label>
+        <select asp-for="Estado" class="form-control">
+            <option value="Activo">Activo</option>
+            <option value="Finalizado">Finalizado</option>
+            <option value="Cancelado">Cancelado</option>
+        </select>
+        <span asp-validation-for="Estado" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-primary">Guardar</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+</form>

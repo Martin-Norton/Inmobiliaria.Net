@@ -1,0 +1,39 @@
+@model inmobiliariaNortonNoe.Models.Contrato
+
+@if (Model != null)
+{
+    <h2>Detalles del Contrato</h2>
+
+    <div class="form-group">
+        <label>Inquilino</label>
+        <p>@Model.Inquilino.Nombre @Model.Inquilino.Apellido</p>
+    </div>
+
+    <div class="form-group">
+        <label>Inmueble</label>
+        <p>@Model.Inmueble.Direccion</p>
+    </div>
+
+    <div class="form-group">
+        <label>Fecha Inicio</label>
+        <p>@Model.FechaInicio.ToShortDateString()</p>
+    </div>
+
+    <div class="form-group">
+        <label>Fecha Fin</label>
+        <p>@Model.FechaFin.ToShortDateString()</p>
+    </div>
+
+    <div class="form-group">
+        <label>Monto Mensual</label>
+        <p>$@Model.MontoMensual</p>
+    </div>
+
+    <a asp-action="Index" class="btn btn-secondary">Volver</a>
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Editar</a>
+    <a asp-action="Eliminar" asp-route-id="@Model.Id" class="btn btn-danger">Eliminar</a>
+}
+else
+{
+    <p>El contrato no se encontró.</p>
+}
