@@ -147,7 +147,7 @@ namespace inmobiliariaNortonNoe.Models
             return p;
         }
 
-      public IList<Inmueble> BuscarPorTipo(string tipo)
+    public IList<Inmueble> BuscarPorTipo(string tipo)
         {
             IList<Inmueble> lista = new List<Inmueble>();
             using (var connection = new MySqlConnection(connectionString))
