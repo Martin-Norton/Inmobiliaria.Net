@@ -2,16 +2,21 @@ using System;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using inmobiliariaNortonNoe.Models;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace inmobiliariaNortonNoe.Controllers
 {
     public class ContratoController : Controller
     {
+        private readonly IRepositorioInmueble repoInmueble;
+        private readonly IRepositorioInquilino repoInquilino;
         private readonly IRepositorioContrato repositorio;
 
-        public ContratoController(IRepositorioContrato repo)
+        public ContratoController(IRepositorioContrato repo, IRepositorioInmueble repoInmueble, IRepositorioInquilino repoInquilino)
         {
             this.repositorio = repo;
+            this.repoInmueble = repoInmueble;
+            this.repoInquilino = repoInquilino;
         }
 
         public ActionResult Index()
@@ -38,7 +43,30 @@ namespace inmobiliariaNortonNoe.Controllers
 
         public ActionResult Create()
         {
-            return View();
+            // ViewBag.Inmuebles = new SelectList(repoInmueble.ObtenerTodos(), "Id", "Direccion");
+            // ViewBag.Inquilinos = new SelectList(repoInquilino.ObtenerTodos(), "Id", "Nombre");
+            // return View();
+            var listaInmuebles = repoInmueble.ObtenerTodos();
+            var listaInquilinos = repoInquilino.ObtenerTodos();
+
+            if (listaInmuebles == null || listaInmuebles.Count == 0)
+            {
+                TempData["Mensaje"] = "No hay inmuebles disponibles.";
+                return RedirectToAction("Index");
+            }
+            if (listaInquilinos == null || listaInquilinos.Count == 0)
+            {
+                TempData["Mensaje"] = "No hay inquilinos disponibles.";
+                return RedirectToAction("Index");
+            }
+
+            ViewBag.inmuebles = new SelectList(listaInmuebles, "Id", "Direccion");
+            ViewBag.Inquilinos = new SelectList(listaInquilinos, "Id", "Nombre");
+
+            if (TempData.ContainsKey("Mensaje"))
+                ViewBag.Mensaje = TempData["Mensaje"];
+
+            return View(new Contrato());
         }
 
         [HttpPost]
