@@ -43,9 +43,6 @@ namespace inmobiliariaNortonNoe.Controllers
 
         public ActionResult Create()
         {
-            // ViewBag.Inmuebles = new SelectList(repoInmueble.ObtenerTodos(), "Id", "Direccion");
-            // ViewBag.Inquilinos = new SelectList(repoInquilino.ObtenerTodos(), "Id", "Nombre");
-            // return View();
             var listaInmuebles = repoInmueble.ObtenerTodos();
             var listaInquilinos = repoInquilino.ObtenerTodos();
 

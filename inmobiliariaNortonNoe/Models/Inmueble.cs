@@ -13,22 +13,22 @@ namespace inmobiliariaNortonNoe.Models
         public string Direccion { get; set; }
 
         [Required(ErrorMessage = "El uso es obligatorio.")]
-        public string Uso { get; set; } // Comercial o Residencial
+        public string Uso { get; set; }
 
         [Required(ErrorMessage = "El tipo es obligatorio.")]
-        public string Tipo { get; set; } // Local, Depósito, Casa, Departamento, etc.
+        public string Tipo { get; set; }
 
         [Range(1, int.MaxValue, ErrorMessage = "La cantidad de ambientes debe ser mayor a 0.")]
         public int Cantidad_Ambientes { get; set; }
 
-        public string Coordenadas { get; set; } // Ubicación geográfica opcional
+        public string Coordenadas { get; set; }
 
         [Required(ErrorMessage = "El precio es obligatorio.")]
         [Range(1, double.MaxValue, ErrorMessage = "El precio debe ser mayor a 0.")]
         public decimal Precio { get; set; }
 
         [Required(ErrorMessage = "El estado es obligatorio.")]
-        public string Estado { get; set; } // Disponible, No disponible, Suspendido
+        public string Estado { get; set; }
 
         [Required(ErrorMessage = "El propietario es obligatorio.")]
         public int Id_Propietario { get; set; }
