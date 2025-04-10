@@ -75,7 +75,22 @@ namespace inmobiliariaNortonNoe.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Create(Inmueble inmueble)
         {
-            if (!ModelState.IsValid) return View(inmueble);
+            if (!ModelState.IsValid)
+            {
+
+            var listaPropietarios = repositorioPropietario.ObtenerTodos();
+
+            if (listaPropietarios == null || listaPropietarios.Count == 0)
+            {
+                TempData["Mensaje"] = "No hay propietarios disponibles";
+                return RedirectToAction("Index");
+            }
+
+            ViewBag.Propietarios = new SelectList(listaPropietarios, "Id", "Nombre");
+
+            return View(inmueble);
+            }
+        
 
             repositorio.Alta(inmueble);
             TempData["Mensaje"] = "Inmueble creado correctamente";
