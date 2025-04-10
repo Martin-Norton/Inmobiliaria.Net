@@ -78,19 +78,19 @@ namespace inmobiliariaNortonNoe.Controllers
             if (!ModelState.IsValid)
             {
 
-            var listaPropietarios = repositorioPropietario.ObtenerTodos();
+                var listaPropietarios = repositorioPropietario.ObtenerTodos();
 
-            if (listaPropietarios == null || listaPropietarios.Count == 0)
-            {
-                TempData["Mensaje"] = "No hay propietarios disponibles";
-                return RedirectToAction("Index");
+                if (listaPropietarios == null || listaPropietarios.Count == 0)
+                {
+                    TempData["Mensaje"] = "No hay propietarios disponibles";
+                    return RedirectToAction("Index");
+                }
+
+                ViewBag.Propietarios = new SelectList(listaPropietarios, "Id", "Nombre");
+
+                return View(inmueble);
             }
 
-            ViewBag.Propietarios = new SelectList(listaPropietarios, "Id", "Nombre");
-
-            return View(inmueble);
-            }
-        
 
             repositorio.Alta(inmueble);
             TempData["Mensaje"] = "Inmueble creado correctamente";
@@ -99,9 +99,15 @@ namespace inmobiliariaNortonNoe.Controllers
 
         public ActionResult Edit(int id)
         {
+
             var entidad = repositorio.ObtenerPorId(id);
+            
+            var propietario = repositorioPropietario.ObtenerPorId(entidad.Id_Propietario);
+            ViewBag.NombrePropietario = propietario.Nombre + " " + propietario.Apellido;
+
             return View(entidad);
         }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
