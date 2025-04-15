@@ -12,5 +12,7 @@ namespace inmobiliariaNortonNoe.Models
         IList<Contrato> ObtenerPorInquilino(int idInquilino);
         IList<Contrato> ObtenerLista(int paginaNro, int tamPagina);
         int ObtenerCantidad();
+        bool ExisteContratoSuperpuestoE(int idInmueble, DateTime fechaInicio, DateTime fechaFin);
+        bool ExisteContratoSuperpuesto(int idInmueble, DateTime fechaInicio, DateTime fechaFin);
     }
 }

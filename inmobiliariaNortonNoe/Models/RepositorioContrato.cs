@@ -146,28 +146,28 @@ namespace inmobiliariaNortonNoe.Models
             }
             return contrato;
         }
-public Contrato ObtenerPorInmueble(int idInmueble)
+        public Contrato ObtenerPorInmueble(int idInmueble)
         {
-            Contrato contrato = null;
-            using (var connection = new MySqlConnection(connectionString))
-            {
-                string sql = @"SELECT * FROM Contrato WHERE ID_Inmueble = @idInmueble";
-                using (var command = new MySqlCommand(sql, connection))
-                {
-                    command.Parameters.AddWithValue("@idInmueble", idInmueble);
-                    connection.Open();
-                    using (var reader = command.ExecuteReader())
+                    Contrato contrato = null;
+                    using (var connection = new MySqlConnection(connectionString))
                     {
-                        if (reader.Read())
+                        string sql = @"SELECT * FROM Contrato WHERE ID_Inmueble = @idInmueble";
+                        using (var command = new MySqlCommand(sql, connection))
                         {
-                            contrato = MapearContrato(reader);
+                            command.Parameters.AddWithValue("@idInmueble", idInmueble);
+                            connection.Open();
+                            using (var reader = command.ExecuteReader())
+                            {
+                                if (reader.Read())
+                                {
+                                    contrato = MapearContrato(reader);
+                                }
+                            }
+                            connection.Close();
                         }
                     }
-                    connection.Close();
+                    return contrato;
                 }
-            }
-            return contrato;
-        }
 
         public IList<Contrato> ObtenerVigentes()
         {
@@ -268,5 +268,43 @@ public Contrato ObtenerPorInmueble(int idInmueble)
             };
         }
 
+    
+
+        public bool ExisteContratoSuperpuesto(int idInmueble, DateTime fechaInicio, DateTime fechaFin)
+        {
+            using (var connection = new MySqlConnection(connectionString))
+            {
+                string sql = @"SELECT COUNT(*) FROM Contrato 
+                            WHERE ID_Inmueble = @idInmueble
+                            AND ((@fechaInicio <= Fecha_Fin AND @fechaFin >= Fecha_Inicio))";
+                using (var command = new MySqlCommand(sql, connection))
+                {
+                    command.Parameters.AddWithValue("@idInmueble", idInmueble);
+                    command.Parameters.AddWithValue("@fechaInicio", fechaInicio);
+                    command.Parameters.AddWithValue("@fechaFin", fechaFin);
+                    connection.Open();
+                    int count = Convert.ToInt32(command.ExecuteScalar());
+                    return count > 0;
+                }
+            }
+        }
+        public bool ExisteContratoSuperpuestoE(int idInmueble, DateTime fechaInicio, DateTime fechaFin)
+        {
+            using (var connection = new MySqlConnection(connectionString))
+            {
+                string sql = @"SELECT COUNT(*) FROM Contrato 
+                            WHERE ID_Inmueble = @idInmueble
+                            AND ((@fechaInicio <= Fecha_Fin AND @fechaFin >= Fecha_Inicio)) AND ID_Contrato != @idContrato";
+                using (var command = new MySqlCommand(sql, connection))
+                {
+                    command.Parameters.AddWithValue("@idInmueble", idInmueble);
+                    command.Parameters.AddWithValue("@fechaInicio", fechaInicio);
+                    command.Parameters.AddWithValue("@fechaFin", fechaFin);
+                    connection.Open();
+                    int count = Convert.ToInt32(command.ExecuteScalar());
+                    return count > 0;
+                }
+            }
+        }
     }
 }

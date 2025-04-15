@@ -72,6 +72,14 @@ namespace inmobiliariaNortonNoe.Controllers
         {
             if (!ModelState.IsValid) return View(contrato);
 
+            if (repositorio.ExisteContratoSuperpuesto(contrato.ID_Inmueble, contrato.Fecha_Inicio, contrato.Fecha_Fin))
+            {
+                ModelState.AddModelError("", "Ya existe un contrato para este inmueble en las fechas seleccionadas.");
+                ViewBag.inmuebles = new SelectList(repoInmueble.ObtenerTodos(), "Id", "Direccion");
+                ViewBag.Inquilinos = new SelectList(repoInquilino.ObtenerTodos(), "Id", "Nombre");
+                return RedirectToAction(nameof(Index));
+            }
+
             repositorio.Alta(contrato);
             TempData["Mensaje"] = "Contrato creado correctamente";
             return RedirectToAction(nameof(Index));
@@ -88,6 +96,14 @@ namespace inmobiliariaNortonNoe.Controllers
         public ActionResult Edit(int id, Contrato entidad)
         {
             if (!ModelState.IsValid) return View(entidad);
+
+            if (repositorio.ExisteContratoSuperpuestoE(entidad.ID_Inmueble, entidad.Fecha_Inicio, entidad.Fecha_Fin))
+            {
+                ModelState.AddModelError("", "Ya existe un contrato para este inmueble en las fechas seleccionadas.");
+                ViewBag.inmuebles = new SelectList(repoInmueble.ObtenerTodos(), "Id", "Direccion");
+                ViewBag.Inquilinos = new SelectList(repoInquilino.ObtenerTodos(), "Id", "Nombre");
+                return View(entidad);
+            }
 
             var p = repositorio.ObtenerPorId(id);
             if (p == null) return NotFound();
