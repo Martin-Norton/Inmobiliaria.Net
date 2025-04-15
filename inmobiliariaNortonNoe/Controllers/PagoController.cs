@@ -22,25 +22,43 @@ namespace inmobiliariaNortonNoe.Controllers
             return View();
         }
 
-        // GET: Pago/Details/5
-        public IActionResult Details(int id)
+        public IActionResult PagosPorContrato(int idContrato)
         {
-            var pago = repositorioPago.ObtenerPorId(id);
-            if (pago == null)
+            var pagos = repositorioPago.ObtenerPagosPorContrato(idContrato);
+            ViewBag.IdContrato = idContrato;
+            return View(pagos);
+        }
+
+        public IActionResult Create2(int? idContrato)
+        {
+            var contratos = repositorioContrato.ObtenerTodos();
+            ViewBag.Contratos = new SelectList(contratos, "ID_Contrato", "ID_Contrato");
+
+            var pago = new Pago();
+            if (idContrato.HasValue)
             {
-                return NotFound();
+                pago.Id_Contrato = idContrato.Value;
             }
+
             return View(pago);
         }
 
         // GET: Pago/Create
-        public IActionResult Create()
+        public IActionResult Create(int? idContrato)
         {
-            ViewBag.Contratos = repositorioContrato.ObtenerTodos();
-            return View();
+            var contratos = repositorioContrato.ObtenerTodos();
+            ViewBag.Contratos = new SelectList(contratos, "ID_Contrato", "ID_Contrato");
+
+            var pago = new Pago();
+            if (idContrato.HasValue)
+            {
+                pago.Id_Contrato = idContrato.Value;
+            }
+
+            return View(pago);
         }
 
-        // POST: Pago/Create
+       // POST: Pago/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Create(Pago pago)
@@ -49,17 +67,19 @@ namespace inmobiliariaNortonNoe.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    Console.WriteLine("Modelo válido"); 
                     repositorioPago.Alta(pago);
-
                     return RedirectToAction(nameof(Index));
                 }
-                
-                return View();
+
+                var contratos = repositorioContrato.ObtenerTodos();
+                ViewBag.Contratos = new SelectList(contratos, "ID_Contrato", "ID_Contrato");
+                return View(pago);
             }
             catch
             {
-                return View();
+                var contratos = repositorioContrato.ObtenerTodos();
+                ViewBag.Contratos = new SelectList(contratos, "ID_Contrato", "ID_Contrato");
+                return View(pago);
             }
         }
 
@@ -112,6 +132,7 @@ namespace inmobiliariaNortonNoe.Controllers
         }
 
         // POST: Pago/Delete/5
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Delete(int id, Pago pago)
@@ -119,7 +140,7 @@ namespace inmobiliariaNortonNoe.Controllers
             try
             {
                 repositorioPago.Baja(id);
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("PagosPorContrato", new { idContrato = pago.Id_Contrato });
             }
             catch
             {

@@ -1,0 +1,48 @@
+@model IEnumerable<inmobiliariaNortonNoe.Models.Pago>
+
+@{
+    ViewData["Title"] = "Pagos del Contrato";
+}
+
+<h2>Pagos del Contrato #@ViewBag.IdContrato</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Fecha de Pago</th>
+            <th>Monto</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var pago in Model)
+        {
+            <tr>
+                <td>@pago.Id</td>
+                <td>@pago.Fecha_Pago.ToShortDateString()</td>
+                <td>@pago.Monto.ToString("C")</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<tbody>
+    @foreach (var pago in Model)
+    {
+        <tr>
+            <td>@pago.Id</td>
+            <td>@pago.Fecha_Pago.ToShortDateString()</td>
+            <td>@pago.Monto.ToString("C")</td>
+            <td>
+                <a class="btn btn-danger btn-sm"
+                   asp-action="Delete"
+                   asp-route-id="@pago.Id">Eliminar</a>
+            </td>
+        </tr>
+    }
+</tbody>
+
+<a asp-action="Create" asp-route-idContrato="@ViewBag.IdContrato" class="btn btn-success mt-3">
+    Agregar Pago a este Contrato
+</a>
+<a class="btn btn-secondary" asp-controller="Contrato" asp-action="Details" asp-route-id="@ViewBag.IdContrato">Volver al Contrato</a>

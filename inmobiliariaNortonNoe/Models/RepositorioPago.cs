@@ -31,6 +31,35 @@ namespace inmobiliariaNortonNoe.Models
             return res;
         }
 
+        public IList<Pago> ObtenerPagosPorContrato(int idContrato)
+        {
+            var pagos = new List<Pago>();
+            using (var connection = new MySqlConnection(connectionString))
+            {
+                string sql = @"SELECT Id, id_contrato, fecha_pago, monto 
+                            FROM Pago 
+                            WHERE id_contrato = @idContrato";
+                using (var command = new MySqlCommand(sql, connection))
+                {
+                    command.Parameters.AddWithValue("@idContrato", idContrato);
+                    connection.Open();
+                    var reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        pagos.Add(new Pago
+                        {
+                            Id = reader.GetInt32("Id"),
+                            Id_Contrato = reader.GetInt32("id_contrato"),
+                            Fecha_Pago = reader.GetDateTime("fecha_pago"),
+                            Monto = reader.GetDecimal("monto")
+                        });
+                    }
+                    connection.Close();
+                }
+            }
+            return pagos;
+        }
+
         public int Baja(int id)
         {
             using var connection = new MySqlConnection(connectionString);
