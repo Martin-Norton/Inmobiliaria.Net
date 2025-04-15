@@ -126,6 +126,7 @@ namespace inmobiliariaNortonNoe.Models
                     command.Parameters.AddWithValue("@id", id);
                     connection.Open();
                     var reader = command.ExecuteReader();
+
                     if (reader.Read())
                     {
                         p = new Inmueble

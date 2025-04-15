@@ -32,5 +32,9 @@ namespace inmobiliariaNortonNoe.Models
 
         [Required(ErrorMessage = "El propietario es obligatorio.")]
         public int Id_Propietario { get; set; }
+
+        public string? Portada { get; set; } 
+        public IFormFile? PortadaFile { get; set; }
+        public IList<Imagen> Imagenes { get; set; } = new List<Imagen>();
     }
 }

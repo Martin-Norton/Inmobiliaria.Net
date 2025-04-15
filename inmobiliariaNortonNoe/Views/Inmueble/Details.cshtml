@@ -9,6 +9,19 @@
         <dd class="col-sm-10">@Model.Tipo</dd>
         <dt class="col-sm-2">Uso:</dt>
         <dd class="col-sm-10">@Model.Uso</dd>
+        @if (!string.IsNullOrEmpty(Model.Portada))
+        {
+            <img src="@Model.Portada" alt="Portada" class="img-thumbnail" style="max-width: 200px;" />
+        }
+
+        @if (Model.Imagenes != null && Model.Imagenes.Count > 0)
+        {
+            <h5>Otras imágenes:</h5>
+            @foreach (var img in Model.Imagenes)
+            {
+                <img src="@img.Url" alt="Imagen" class="img-thumbnail" style="max-width: 200px;" />
+            }
+        }
     </dl>
     <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Editar</a>
     <a asp-action="Index" class="btn btn-secondary">Volver</a>

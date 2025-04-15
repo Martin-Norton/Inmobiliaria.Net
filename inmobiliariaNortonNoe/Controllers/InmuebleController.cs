@@ -12,12 +12,15 @@ namespace inmobiliariaNortonNoe.Controllers
     {
         private readonly IRepositorioInmueble repositorio;
         private readonly IRepositorioPropietario repositorioPropietario;
+        IWebHostEnvironment environment;
 
-        public InmuebleController(IRepositorioInmueble repo, IRepositorioPropietario repositorioPropietario)
+        public InmuebleController(IWebHostEnvironment environment, IRepositorioInmueble repo, IRepositorioPropietario repositorioPropietario)
         {
+            this.environment = environment;
             this.repositorioPropietario = repositorioPropietario;
             this.repositorio = repo;
         }
+
         public ActionResult Index()
         {
             var lista = repositorio.ObtenerTodos();
@@ -77,6 +80,21 @@ namespace inmobiliariaNortonNoe.Controllers
         {
             if (!ModelState.IsValid)
             {
+                if (inmueble.PortadaFile != null && inmueble.PortadaFile.Length > 0)
+                {
+                    var uploads = Path.Combine(environment.WebRootPath, "Uploads", "Portadas");
+                    if (!Directory.Exists(uploads))
+                        Directory.CreateDirectory(uploads);
+
+                    var archivoNombre = Guid.NewGuid().ToString() + Path.GetExtension(inmueble.PortadaFile.FileName);
+                    var rutaArchivo = Path.Combine(uploads, archivoNombre);
+
+                    using (var stream = new FileStream(rutaArchivo, FileMode.Create))
+                    {
+                        await inmueble.PortadaFile.CopyToAsync(stream);
+                    }
+                    inmueble.Portada = $"/Uploads/Portadas/{archivoNombre}";
+                }
 
                 var listaPropietarios = repositorioPropietario.ObtenerTodos();
 
@@ -104,7 +122,6 @@ namespace inmobiliariaNortonNoe.Controllers
             
             var propietario = repositorioPropietario.ObtenerPorId(entidad.Id_Propietario);
             ViewBag.NombrePropietario = propietario.Nombre + " " + propietario.Apellido;
-
             return View(entidad);
         }
 
@@ -114,7 +131,21 @@ namespace inmobiliariaNortonNoe.Controllers
         public ActionResult Edit(int id, Inmueble entidad)
         {
             if (!ModelState.IsValid) return View(entidad);
+            if (inmueble.PortadaFile != null && inmueble.PortadaFile.Length > 0)
+            {
+                var uploads = Path.Combine(environment.WebRootPath, "Uploads", "Portadas");
+                if (!Directory.Exists(uploads))
+                    Directory.CreateDirectory(uploads);
 
+                var archivoNombre = Guid.NewGuid().ToString() + Path.GetExtension(inmueble.PortadaFile.FileName);
+                var rutaArchivo = Path.Combine(uploads, archivoNombre);
+
+                using (var stream = new FileStream(rutaArchivo, FileMode.Create))
+                {
+                    await inmueble.PortadaFile.CopyToAsync(stream);
+                }
+                inmueble.Portada = $"/Uploads/Portadas/{archivoNombre}";
+            }
             var p = repositorio.ObtenerPorId(id);
             if (p == null) return NotFound();
 
