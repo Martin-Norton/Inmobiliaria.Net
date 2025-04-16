@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace inmobiliariaNortonNoe.Controllers
 {
-	[Authorize]
 	public class ImagenesController : Controller
 	{
 		private readonly IRepositorioImagen repositorio;
@@ -58,14 +57,16 @@ namespace inmobiliariaNortonNoe.Controllers
 						Url = $"/Uploads/Inmuebles/{id}/{nombreArchivo}",
 					};
 					repositorio.Alta(imagen);
+					var resultado = repositorio.Alta(imagen);
+					if (resultado == 0)
+					{
+						return BadRequest("No se insertó la imagen en la base de datos.");
+					}
 				}
 			}
 			return Ok(repositorio.BuscarPorInmueble(id));
 		}
-
-		// POST: Inmueble/Eliminar/5
 		[HttpPost]
-		[Authorize(Policy = "Administrador")]
 		public ActionResult Eliminar(int id)
 		{
 			try

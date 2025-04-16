@@ -1,0 +1,16 @@
+@model IList<inmobiliariaNortonNoe.Models.Imagen>
+@if (Model != null && Model.Count > 0)
+{
+    <div class="d-flex flex-wrap">
+        @foreach (var imagen in Model)
+        {
+            <div class="m-2">
+                <img src="@imagen.Url" class="img-thumbnail" style="max-width: 150px; max-height: 150px;" />
+            </div>
+        }
+    </div>
+}
+else
+{
+    <p>No hay imágenes disponibles para este inmueble.</p>
+}

@@ -9,14 +9,42 @@ namespace inmobiliariaNortonNoe.Models
     {
         public RepositorioInmueble(IConfiguration configuration) : base(configuration) {}
 
+        // public int Alta(Inmueble p)
+        // {
+        //     int res = -1;
+        //     using (var connection = new MySqlConnection(connectionString))
+        //     {
+        //         string sql = @"INSERT INTO Inmueble 
+        //             (Direccion, Uso, Tipo, Cantidad_Ambientes, Coordenadas, Precio, Estado, ID_Propietario) 
+        //             VALUES (@direccion, @uso, @tipo, @cantidadAmbientes, @coordenadas, @precio, @estado, @idPropietario);
+        //             SELECT LAST_INSERT_ID();";
+        //         using (var command = new MySqlCommand(sql, connection))
+        //         {
+        //             command.Parameters.AddWithValue("@direccion", p.Direccion);
+        //             command.Parameters.AddWithValue("@uso", p.Uso);
+        //             command.Parameters.AddWithValue("@tipo", p.Tipo);
+        //             command.Parameters.AddWithValue("@cantidadAmbientes", p.Cantidad_Ambientes);
+        //             command.Parameters.AddWithValue("@coordenadas", p.Coordenadas);
+        //             command.Parameters.AddWithValue("@precio", p.Precio);
+        //             command.Parameters.AddWithValue("@estado", p.Estado);
+        //             command.Parameters.AddWithValue("@idPropietario", p.Id_Propietario);
+                    
+        //             connection.Open();
+        //             res = Convert.ToInt32(command.ExecuteScalar());
+        //             p.Id = res;
+        //             connection.Close();
+        //         }
+        //     }
+        //     return res;
+        // }
         public int Alta(Inmueble p)
         {
             int res = -1;
             using (var connection = new MySqlConnection(connectionString))
             {
                 string sql = @"INSERT INTO Inmueble 
-                    (Direccion, Uso, Tipo, Cantidad_Ambientes, Coordenadas, Precio, Estado, ID_Propietario) 
-                    VALUES (@direccion, @uso, @tipo, @cantidadAmbientes, @coordenadas, @precio, @estado, @idPropietario);
+                    (Direccion, Uso, Tipo, Cantidad_Ambientes, Coordenadas, Precio, Estado, ID_Propietario, Portada) 
+                    VALUES (@direccion, @uso, @tipo, @cantidadAmbientes, @coordenadas, @precio, @estado, @idPropietario, @portada);
                     SELECT LAST_INSERT_ID();";
                 using (var command = new MySqlCommand(sql, connection))
                 {
@@ -28,7 +56,10 @@ namespace inmobiliariaNortonNoe.Models
                     command.Parameters.AddWithValue("@precio", p.Precio);
                     command.Parameters.AddWithValue("@estado", p.Estado);
                     command.Parameters.AddWithValue("@idPropietario", p.Id_Propietario);
-                    
+
+                    // Portada opcional
+                    command.Parameters.AddWithValue("@portada", string.IsNullOrEmpty(p.Portada) ? (object)DBNull.Value : p.Portada);
+
                     connection.Open();
                     res = Convert.ToInt32(command.ExecuteScalar());
                     p.Id = res;
@@ -37,6 +68,7 @@ namespace inmobiliariaNortonNoe.Models
             }
             return res;
         }
+
 
         public int Baja(int id)
         {
@@ -83,6 +115,26 @@ namespace inmobiliariaNortonNoe.Models
             }
             return res;
         }
+        public int ModificarPortada(int id, string url)
+        {
+            int res = -1;
+            using (var connection = new MySqlConnection(connectionString))
+            {
+                string sql = @"
+                    UPDATE Inmuebles SET
+                    Portada = @portada
+                    WHERE Id = @id";
+                using (var command = new MySqlCommand(sql, connection))
+                {
+                    command.Parameters.AddWithValue("@portada", string.IsNullOrEmpty(url) ? (object)DBNull.Value : url);
+                    command.Parameters.AddWithValue("@id", id);
+                    command.CommandType = CommandType.Text;
+                    connection.Open();
+                    res = command.ExecuteNonQuery();
+                }
+            }
+            return res;
+        }
 
         public IList<Inmueble> ObtenerTodos()
         {
@@ -106,7 +158,8 @@ namespace inmobiliariaNortonNoe.Models
                             Coordenadas = reader.GetString("Coordenadas"),
                             Precio = reader.GetDecimal("Precio"),
                             Estado = reader.GetString("Estado"),
-                            Id_Propietario = reader.GetInt32("ID_Propietario")
+                            Id_Propietario = reader.GetInt32("ID_Propietario"),
+                            Portada = reader["Portada"] == DBNull.Value ? null : reader.GetString("Portada")
                         });
                     }
                     connection.Close();
@@ -139,7 +192,9 @@ namespace inmobiliariaNortonNoe.Models
                             Coordenadas = reader.GetString("Coordenadas"),
                             Precio = reader.GetDecimal("Precio"),
                             Estado = reader.GetString("Estado"),
-                            Id_Propietario = reader.GetInt32("ID_Propietario")
+                            Id_Propietario = reader.GetInt32("ID_Propietario"),
+                            Portada = reader["Portada"] == DBNull.Value ? null : reader.GetString("Portada"),
+
                         };
                     }
                     connection.Close();
@@ -266,7 +321,9 @@ namespace inmobiliariaNortonNoe.Models
                 Coordenadas = reader.GetString("Coordenadas"),
                 Precio = reader.GetDecimal("Precio"),
                 Estado = reader.GetString("Estado"),
-                Id_Propietario = reader.GetInt32("Id_Propietario")
+                Id_Propietario = reader.GetInt32("Id_Propietario"),
+                Portada = reader["Portada"] == DBNull.Value ? null : reader.GetString("Portada"),
+
             };
         }
     }

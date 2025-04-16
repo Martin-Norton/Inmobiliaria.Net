@@ -42,8 +42,9 @@
         <input asp-for="Estado" class="form-control" />
     </div>
     <div class="form-group">
-        <label>Propietario</label>
-        <input type="text" class="form-control" value="@ViewBag.NombrePropietario" readonly />
+        <label asp-for="Id_Propietario" class="control-label"></label>
+        <select asp-for="Id_Propietario" asp-items="ViewBag.Propietarios" class="form-control"></select>
+        <span asp-validation-for="Id_Propietario" class="text-danger"></span>
     </div>
     <div class="form-group">
         <label asp-for="PortadaFile" class="control-label"></label>
