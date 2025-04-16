@@ -8,35 +8,7 @@ namespace inmobiliariaNortonNoe.Models
     public class RepositorioInmueble : RepositorioBase, IRepositorioInmueble
     {
         public RepositorioInmueble(IConfiguration configuration) : base(configuration) {}
-
-        // public int Alta(Inmueble p)
-        // {
-        //     int res = -1;
-        //     using (var connection = new MySqlConnection(connectionString))
-        //     {
-        //         string sql = @"INSERT INTO Inmueble 
-        //             (Direccion, Uso, Tipo, Cantidad_Ambientes, Coordenadas, Precio, Estado, ID_Propietario) 
-        //             VALUES (@direccion, @uso, @tipo, @cantidadAmbientes, @coordenadas, @precio, @estado, @idPropietario);
-        //             SELECT LAST_INSERT_ID();";
-        //         using (var command = new MySqlCommand(sql, connection))
-        //         {
-        //             command.Parameters.AddWithValue("@direccion", p.Direccion);
-        //             command.Parameters.AddWithValue("@uso", p.Uso);
-        //             command.Parameters.AddWithValue("@tipo", p.Tipo);
-        //             command.Parameters.AddWithValue("@cantidadAmbientes", p.Cantidad_Ambientes);
-        //             command.Parameters.AddWithValue("@coordenadas", p.Coordenadas);
-        //             command.Parameters.AddWithValue("@precio", p.Precio);
-        //             command.Parameters.AddWithValue("@estado", p.Estado);
-        //             command.Parameters.AddWithValue("@idPropietario", p.Id_Propietario);
-                    
-        //             connection.Open();
-        //             res = Convert.ToInt32(command.ExecuteScalar());
-        //             p.Id = res;
-        //             connection.Close();
-        //         }
-        //     }
-        //     return res;
-        // }
+        
         public int Alta(Inmueble p)
         {
             int res = -1;
