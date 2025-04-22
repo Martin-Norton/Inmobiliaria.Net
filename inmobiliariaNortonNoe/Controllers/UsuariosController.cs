@@ -1,0 +1,356 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net.Http;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using inmobiliariaNortonNoe.Models;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+
+namespace inmobiliariaNortonNoe.Controllers
+{
+	public class UsuariosController : Controller
+	{
+		private readonly IConfiguration configuration;
+		private readonly IWebHostEnvironment environment;
+		private readonly IRepositorioUsuario repositorio;
+
+		public UsuariosController(IConfiguration configuration, IWebHostEnvironment environment, IRepositorioUsuario repositorio)
+		{
+			this.configuration = configuration;
+			this.environment = environment;
+			this.repositorio = repositorio;
+		}
+
+		[Authorize(Policy = "Administrador")]
+		public ActionResult Index()
+		{
+			var usuarios = repositorio.ObtenerTodos();
+			return View(usuarios);
+		}
+
+		// GET: Usuarios/Details/5
+		[Authorize(Policy = "Administrador")]
+		public ActionResult Details(int id)
+		{
+			var e = repositorio.ObtenerPorId(id);
+			if (e == null) return NotFound();
+			return View(e);
+		}
+
+		// GET: Usuarios/Create
+		[Authorize(Policy = "Administrador")]
+		public ActionResult Create()
+		{
+			ViewBag.Roles = Usuario.ObtenerRoles();
+			return View();
+		}
+
+		// POST: Usuarios/Create
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		[Authorize(Policy = "Administrador")]
+		public ActionResult Create(Usuario u)
+		{
+			if (!ModelState.IsValid)
+            {
+                ViewBag.Roles = Usuario.ObtenerRoles();
+				return View(u);
+            }
+			try
+			{
+				string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
+								password: u.Clave,
+								salt: System.Text.Encoding.ASCII.GetBytes(configuration["Salt"]),
+								prf: KeyDerivationPrf.HMACSHA1,
+								iterationCount: 10000, 
+								numBytesRequested: 256 / 8));
+				u.Clave = hashed;
+				int res = repositorio.Alta(u);
+
+                if (u.AvatarFile != null && u.Id > 0)
+                {
+                    string wwwPath = environment.WebRootPath;
+                    string path = Path.Combine(wwwPath, "Uploads", "Avatars");
+                    if (!Directory.Exists(path))
+                    {
+                        Directory.CreateDirectory(path);
+                    }
+                    string fileName = "avatar_" + u.Id + Path.GetExtension(u.AvatarFile.FileName);
+                    string pathCompleto = Path.Combine(path, fileName);
+                    u.Avatar = Path.Combine("/Uploads/Avatars", fileName);
+
+                    using (FileStream stream = new FileStream(pathCompleto, FileMode.Create))
+                    {
+                        u.AvatarFile.CopyTo(stream);
+                    }
+                    repositorio.Modificacion(u);
+                }
+
+				TempData["Mensaje"] = "Usuario creado correctamente.";
+				return RedirectToAction(nameof(Index));
+			}
+			catch (Exception ex)
+			{
+				ModelState.AddModelError("", "Error al crear el usuario: " + ex.Message);
+				ViewBag.Roles = Usuario.ObtenerRoles();
+				return View(u);
+			}
+		}
+
+		[Authorize(Policy = "Administrador")]
+		public ActionResult Edit(int id)
+		{
+			ViewData["Title"] = "Editar usuario";
+			var u = repositorio.ObtenerPorId(id);
+            if (u == null) return NotFound();
+			ViewBag.Roles = Usuario.ObtenerRoles();
+			return View(u); 
+		}
+
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		[Authorize(Policy = "Administrador")]
+		public ActionResult Edit(int id, Usuario u)
+		{
+			if (!ModelState.IsValid)
+            {
+                ViewBag.Roles = Usuario.ObtenerRoles();
+                return View(u);
+            }
+
+			try
+			{
+                Usuario? userActual = repositorio.ObtenerPorId(id);
+                if(userActual == null) return NotFound();
+
+                userActual.Nombre = u.Nombre;
+                userActual.Apellido = u.Apellido;
+                userActual.Email = u.Email;
+                userActual.Rol = u.Rol;
+
+				repositorio.Modificacion(userActual);
+                TempData["Mensaje"] = "Usuario actualizado correctamente.";
+				return RedirectToAction(nameof(Index));
+			}
+			catch(Exception ex)
+			{
+                ModelState.AddModelError("", "Error al editar usuario: " + ex.Message);
+                ViewBag.Roles = Usuario.ObtenerRoles();
+                return View(u);
+            }
+		}
+
+        [Authorize] 
+		public ActionResult Perfil()
+		{
+			ViewData["Title"] = "Mi perfil";
+			var u = repositorio.ObtenerPorEmail(User.Identity.Name);
+            if (u == null) return NotFound(); 
+			return View("Edit", u); 
+		}
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		[Authorize]
+		public ActionResult Perfil(Usuario u)
+		{
+            var usuarioActual = repositorio.ObtenerPorEmail(User.Identity.Name);
+            if (usuarioActual == null) return Challenge(); 
+            if (usuarioActual.Id != u.Id) return Forbid();
+
+            if (ModelState.IsValid)
+            {
+                 try
+                {
+                    usuarioActual.Nombre = u.Nombre;
+                    usuarioActual.Apellido = u.Apellido;
+                    usuarioActual.Email = u.Email; 
+
+                    repositorio.Modificacion(usuarioActual);
+                    TempData["Mensaje"] = "Perfil actualizado correctamente.";
+                    var updatedUser = repositorio.ObtenerPorId(usuarioActual.Id);
+                    return View("Edit", updatedUser);
+                }
+                catch (Exception ex)
+                {
+
+                    ModelState.AddModelError("", "Error al actualizar el perfil: " + ex.Message);
+                    return View("Edit", usuarioActual);
+                }
+            }
+
+            return View("Edit", u);
+		}
+
+
+		[Authorize(Policy = "Administrador")]
+		public ActionResult Delete(int id)
+		{
+            var u = repositorio.ObtenerPorId(id);
+            if (u == null) return NotFound();
+			return View(u);
+		}
+
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+        [ActionName("Delete")] 
+		[Authorize(Policy = "Administrador")] 
+		public ActionResult DeleteConfirmed(int id)
+		{
+			try
+			{
+                var usuario = repositorio.ObtenerPorId(id);
+                if (usuario == null) return NotFound();
+
+                if (!string.IsNullOrEmpty(usuario.Avatar))
+                {
+                    try{
+                        string wwwPath = environment.WebRootPath;
+                        string relativePath = usuario.Avatar.TrimStart('/');
+                        string fullPath = Path.Combine(wwwPath, relativePath);
+                        if (System.IO.File.Exists(fullPath))
+                        {
+                            System.IO.File.Delete(fullPath);
+                        }
+                    } catch (Exception ex) {
+                        Console.WriteLine($"Error deleting avatar file {usuario.Avatar}: {ex.Message}");
+                    }
+                }
+				repositorio.Baja(id);
+                TempData["Mensaje"] = "Usuario eliminado correctamente.";
+				return RedirectToAction(nameof(Index));
+			}
+			catch(Exception ex)
+			{
+                 TempData["Error"] = "Error al eliminar el usuario: " + ex.Message;
+				 return RedirectToAction(nameof(Index));
+			}
+		}
+
+
+		[AllowAnonymous] 
+		public ActionResult Login(string? returnUrl = null)
+		{
+			ViewData["ReturnUrl"] = returnUrl;
+			return View();
+		}
+
+		[HttpPost]
+		[AllowAnonymous]
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> Login(LoginView login, string? returnUrl = null) 
+		{
+			returnUrl ??= Url.Content("~/"); 
+
+			try
+			{
+				if (ModelState.IsValid)
+				{
+
+					string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
+						password: login.Clave,
+						salt: System.Text.Encoding.ASCII.GetBytes(configuration["Salt"]),
+						prf: KeyDerivationPrf.HMACSHA1,
+						iterationCount: 10000, 
+						numBytesRequested: 256 / 8));
+
+					var user = repositorio.ObtenerPorEmail(login.Usuario);
+
+                 
+					if (user == null || user.Clave != hashed)
+					{
+						ModelState.AddModelError("", "El email o la clave no son correctos.");
+						ViewData["ReturnUrl"] = returnUrl;
+						return View(login);
+					}
+
+					var claims = new List<Claim>
+					{
+						new Claim(ClaimTypes.Name, user.Email), 
+						new Claim("FullName", user.Nombre + " " + user.Apellido), 
+						new Claim(ClaimTypes.Role, user.RolNombre),
+                      
+					};
+
+                 
+					var claimsIdentity = new ClaimsIdentity(
+							claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+					var authProperties = new AuthenticationProperties
+					{
+						IsPersistent = true
+					};
+
+					await HttpContext.SignInAsync(
+							CookieAuthenticationDefaults.AuthenticationScheme,
+							new ClaimsPrincipal(claimsIdentity),
+							authProperties);
+
+					return LocalRedirect(returnUrl);
+				}
+                ViewData["ReturnUrl"] = returnUrl;
+				return View(login);
+			}
+			catch (Exception ex)
+			{
+				ModelState.AddModelError("", "Ocurrió un error inesperado: " + ex.Message);
+                ViewData["ReturnUrl"] = returnUrl;
+				return View(login);
+			}
+		}
+
+		[Authorize] 
+		public async Task<ActionResult> Logout()
+		{
+			await HttpContext.SignOutAsync(
+					CookieAuthenticationDefaults.AuthenticationScheme);
+			return RedirectToAction("Index", "Home"); 
+		}
+
+        [AllowAnonymous]
+        public IActionResult Restringido()
+        {
+            return View();
+        }
+
+		[Authorize]
+		public IActionResult Avatar(int id)
+		{
+			try {
+				var u = repositorio.ObtenerPorId(id);
+				if (u == null || string.IsNullOrEmpty(u.Avatar))
+				{
+					return NotFound();
+				}
+				string wwwPath = environment.WebRootPath;
+				string fullPath = Path.Combine(wwwPath, u.Avatar.TrimStart('/'));
+
+				if (!System.IO.File.Exists(fullPath)) {
+					return NotFound();
+				}
+				byte[] fileBytes = System.IO.File.ReadAllBytes(fullPath);
+				string mimeType = GetMimeType(Path.GetExtension(u.Avatar));
+				return File(fileBytes, mimeType);
+			} catch (Exception ex) {
+				return NotFound();
+			}
+		}
+        private string GetMimeType(string extension) {
+            switch (extension.ToLower()) {
+                case ".png": return "image/png";
+                case ".jpg":
+                case ".jpeg": return "image/jpeg";
+                case ".gif": return "image/gif";
+                default: return "application/octet-stream";
+            }
+        }
+	}
+}

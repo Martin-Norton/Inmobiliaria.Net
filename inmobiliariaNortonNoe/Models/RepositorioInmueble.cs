@@ -64,9 +64,9 @@ namespace inmobiliariaNortonNoe.Models
             int res = -1;
             using (var connection = new MySqlConnection(connectionString))
             {
-                string sql = @"UPDATE Inmueble SET 
-                    Direccion=@direccion, Uso=@uso, Tipo=@tipo, Cantidad_Ambientes=@cantidadAmbientes, 
-                    Coordenadas=@coordenadas, Precio=@precio, Estado=@estado, ID_Propietario=@idPropietario
+                string sql = @"UPDATE Inmueble SET
+                    Direccion=@direccion, Uso=@uso, Tipo=@tipo, Cantidad_Ambientes=@cantidadAmbientes,
+                    Coordenadas=@coordenadas, Precio=@precio, Estado=@estado, ID_Propietario=@idPropietario, Portada = @portada
                     WHERE Id = @id";
                 using (var command = new MySqlCommand(sql, connection))
                 {
@@ -79,6 +79,7 @@ namespace inmobiliariaNortonNoe.Models
                     command.Parameters.AddWithValue("@estado", p.Estado);
                     command.Parameters.AddWithValue("@idPropietario", p.Id_Propietario);
                     command.Parameters.AddWithValue("@id", p.Id);
+                    command.Parameters.AddWithValue("@portada", string.IsNullOrEmpty(p.Portada) ? (object)DBNull.Value : p.Portada);
                     
                     connection.Open();
                     res = command.ExecuteNonQuery();
@@ -87,6 +88,7 @@ namespace inmobiliariaNortonNoe.Models
             }
             return res;
         }
+      
         public int ModificarPortada(int id, string url)
         {
             int res = -1;

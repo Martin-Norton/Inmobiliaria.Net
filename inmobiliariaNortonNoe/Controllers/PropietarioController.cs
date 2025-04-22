@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Authorization;
+
 
 namespace inmobiliariaNortonNoe.Controllers
 {
@@ -23,6 +25,7 @@ namespace inmobiliariaNortonNoe.Controllers
 
 		// GET: Propietario
 		[Route("[controller]/Index")]
+		[Authorize(Roles = "Inmobiliaria, Administrador")]
 		public ActionResult Index()
 		{
 			try
@@ -41,6 +44,7 @@ namespace inmobiliariaNortonNoe.Controllers
 
 		// GET: Propietario
 		[Route("[controller]/Lista")]
+		[Authorize(Roles = "Inmobiliaria, Administrador")]
 		public ActionResult Lista(int pagina = 1)
 		{
 			try
@@ -65,6 +69,7 @@ namespace inmobiliariaNortonNoe.Controllers
 		}
 
 		// GET: Propietario/Details/5
+		[Authorize(Roles = "Inmobiliaria, Administrador")]
 		public ActionResult Details(int id)
 		{
 			try
@@ -80,6 +85,7 @@ namespace inmobiliariaNortonNoe.Controllers
 		}
 
 		// GET: Propietario/Busqueda
+		[Authorize(Roles = "Inmobiliaria, Administrador")]
 		public IActionResult Busqueda()
 		{
 			try
@@ -94,6 +100,7 @@ namespace inmobiliariaNortonNoe.Controllers
 
 		// GET: Propietario/Buscar/5
 		[Route("[controller]/Buscar/{q}", Name = "Buscar")]
+		[Authorize(Roles = "Inmobiliaria, Administrador")]
 		public IActionResult Buscar(string q)
 		{
 			try
@@ -108,6 +115,7 @@ namespace inmobiliariaNortonNoe.Controllers
 		}
 
 		// GET: Propietario/Create
+		[Authorize(Roles = "Inmobiliaria, Administrador")]
 		public ActionResult Create()
 		{
 			try
@@ -123,6 +131,7 @@ namespace inmobiliariaNortonNoe.Controllers
 		// POST: Propietario/Create
 		[HttpPost]
 		[ValidateAntiForgeryToken]
+		[Authorize(Roles = "Inmobiliaria, Administrador")]
 		public ActionResult Create(Propietario entidad)
 		{
 			try
@@ -144,6 +153,7 @@ namespace inmobiliariaNortonNoe.Controllers
 		}
 
 		// GET: Propietario/Edit/5
+		[Authorize(Roles = "Inmobiliaria, Administrador")]
 		public ActionResult Edit(int id)
 		{
 			try
@@ -160,6 +170,7 @@ namespace inmobiliariaNortonNoe.Controllers
 		// POST: Propietario/Edit/5
 		[HttpPost]
 		[ValidateAntiForgeryToken]
+		[Authorize(Roles = "Inmobiliaria, Administrador")]
 		public ActionResult Edit(int id, Propietario entidad)
 		{
 			try
@@ -194,6 +205,7 @@ namespace inmobiliariaNortonNoe.Controllers
 		}
 
 		// GET: Propietario/Delete/5
+		[Authorize(Roles = "Inmobiliaria, Administrador")]
 		public ActionResult Eliminar(int id)
 		{
 			try
@@ -210,6 +222,7 @@ namespace inmobiliariaNortonNoe.Controllers
 		// POST: Propietario/Delete/5
 		[HttpPost]
 		[ValidateAntiForgeryToken]
+		[Authorize(Roles = "Inmobiliaria, Administrador")]
 		public ActionResult Eliminar(int id, Propietario entidad)
 		{
 			try

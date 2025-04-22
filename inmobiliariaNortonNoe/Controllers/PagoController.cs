@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using inmobiliariaNortonNoe.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Authorization;
+
 
 namespace inmobiliariaNortonNoe.Controllers
 {
@@ -16,19 +18,19 @@ namespace inmobiliariaNortonNoe.Controllers
             this.repositorioPago = repositorioPago;
             this.repositorioContrato = repositorioContrato;
         }
-
+        [Authorize(Roles = "Inmobiliaria, Administrador")]
         public IActionResult Index()
         {
             return View();
         }
-
+        [Authorize(Roles = "Inmobiliaria, Administrador")]
         public IActionResult PagosPorContrato(int idContrato)
         {
             var pagos = repositorioPago.ObtenerPagosPorContrato(idContrato);
             ViewBag.IdContrato = idContrato;
             return View(pagos);
         }
-
+        [Authorize(Roles = "Inmobiliaria, Administrador")]
         public IActionResult Create2(int? idContrato)
         {
             var contratos = repositorioContrato.ObtenerTodos();
@@ -44,6 +46,7 @@ namespace inmobiliariaNortonNoe.Controllers
         }
 
         // GET: Pago/Create
+        [Authorize(Roles = "Inmobiliaria, Administrador")]
         public IActionResult Create(int? idContrato)
         {
             var contratos = repositorioContrato.ObtenerTodos();
@@ -61,6 +64,7 @@ namespace inmobiliariaNortonNoe.Controllers
        // POST: Pago/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Inmobiliaria, Administrador")]
         public IActionResult Create(Pago pago)
         {
             try
@@ -84,6 +88,7 @@ namespace inmobiliariaNortonNoe.Controllers
         }
 
         // GET: Pago/Edit/5
+        [Authorize(Roles = "Inmobiliaria, Administrador")]
         public IActionResult Edit(int id)
         {
             var pago = repositorioPago.ObtenerPorId(id);
@@ -98,6 +103,7 @@ namespace inmobiliariaNortonNoe.Controllers
         // POST: Pago/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Inmobiliaria, Administrador")]
         public IActionResult Edit(int id, Pago pago)
         {
             try
@@ -121,6 +127,7 @@ namespace inmobiliariaNortonNoe.Controllers
         }
 
         // GET: Pago/Delete/5
+        [Authorize(Roles = "Inmobiliaria, Administrador")]
         public IActionResult Delete(int id)
         {
             var pago = repositorioPago.ObtenerPorId(id);
@@ -135,6 +142,7 @@ namespace inmobiliariaNortonNoe.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Inmobiliaria, Administrador")]
         public IActionResult Delete(int id, Pago pago)
         {
             try

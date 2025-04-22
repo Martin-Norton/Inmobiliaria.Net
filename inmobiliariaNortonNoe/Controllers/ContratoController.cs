@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using inmobiliariaNortonNoe.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Authorization;
 
 namespace inmobiliariaNortonNoe.Controllers
 {
@@ -19,12 +20,14 @@ namespace inmobiliariaNortonNoe.Controllers
             this.repoInquilino = repoInquilino;
         }
 
+        [Authorize(Roles = "Inmobiliaria, Administrador")]
         public ActionResult Index()
         {
             var lista = repositorio.ObtenerTodos();
             return View(lista);
         }
 
+        [Authorize(Roles = "Inmobiliaria, Administrador")]
         public ActionResult Lista(int pagina = 1)
         {
             int tamaño = 5;
@@ -35,12 +38,14 @@ namespace inmobiliariaNortonNoe.Controllers
             return View(lista);
         }
 
+        [Authorize(Roles = "Inmobiliaria, Administrador")]
         public ActionResult Details(int id)
         {
             var entidad = repositorio.ObtenerPorId(id);
             return View(entidad);
         }
 
+        [Authorize(Roles = "Inmobiliaria, Administrador")]
         public ActionResult Create()
         {
             var listaInmuebles = repoInmueble.ObtenerTodos();
@@ -68,6 +73,7 @@ namespace inmobiliariaNortonNoe.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Inmobiliaria, Administrador")]
         public ActionResult Create(Contrato contrato)
         {
             if (!ModelState.IsValid) return View(contrato);
@@ -85,6 +91,7 @@ namespace inmobiliariaNortonNoe.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [Authorize(Roles = "Inmobiliaria, Administrador")]
         public ActionResult Edit(int id)
         {
             var entidad = repositorio.ObtenerPorId(id);
@@ -93,6 +100,7 @@ namespace inmobiliariaNortonNoe.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Inmobiliaria, Administrador")]
         public ActionResult Edit(int id, Contrato entidad)
         {
             if (!ModelState.IsValid) return View(entidad);
@@ -118,6 +126,7 @@ namespace inmobiliariaNortonNoe.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [Authorize(Roles = "Inmobiliaria, Administrador")]
         public ActionResult Eliminar(int id)
         {
             var entidad = repositorio.ObtenerPorId(id);
@@ -126,6 +135,7 @@ namespace inmobiliariaNortonNoe.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Inmobiliaria, Administrador")]
         public ActionResult Eliminar(int id, Contrato entidad)
         {
             repositorio.Baja(id);
@@ -134,6 +144,7 @@ namespace inmobiliariaNortonNoe.Controllers
         }
 
         [Route("[controller]/ObtenerPorInmueble/{id}")]
+        [Authorize(Roles = "Inmobiliaria, Administrador")]
         public IActionResult ObtenerPorInmueble(int id)
         {
             var res = repositorio.ObtenerPorInmueble(id);
@@ -141,6 +152,7 @@ namespace inmobiliariaNortonNoe.Controllers
         }
 
         [Route("[controller]/ObtenerVigentes")]
+        [Authorize(Roles = "Inmobiliaria, Administrador")]
         public IActionResult ObtenerVigentes()
         {
             var res = repositorio.ObtenerVigentes();
@@ -148,6 +160,7 @@ namespace inmobiliariaNortonNoe.Controllers
         }
 
         [Route("[controller]/ObtenerPorInquilino/{id}")]
+        [Authorize(Roles = "Inmobiliaria, Administrador")]
         public IActionResult ObtenerPorInquilino(int id)
         {
             var res = repositorio.ObtenerPorInquilino(id);

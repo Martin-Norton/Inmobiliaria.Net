@@ -7,6 +7,8 @@ using inmobiliariaNortonNoe.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+
 
 namespace inmobiliariaNortonNoe.Controllers
 {
