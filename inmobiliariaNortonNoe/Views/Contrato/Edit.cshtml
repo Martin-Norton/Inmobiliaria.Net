@@ -2,8 +2,9 @@
 @{
     ViewData["Title"] = "Editar Contrato";
 }
+<link rel="stylesheet" href="~/css/Contrato/Edit.css">
 <h2>Editar Contrato</h2>
-<form asp-action="Edit" method="post">
+<form asp-action="Edit" method="post" class="fr">
     <input type="hidden" asp-for="ID_Contrato" />
     <div class="form-group">
         <label asp-for="ID_Inmueble"></label>
@@ -33,5 +34,5 @@
         <label asp-for="Estado"></label>
         <input asp-for="Estado" class="form-control" />
     </div>
-    <button type="submit" class="btn btn-primary">Guardar</button>
+    <button type="submit" class="btn btn-primary" class="bt">Guardar</button>
 </form>

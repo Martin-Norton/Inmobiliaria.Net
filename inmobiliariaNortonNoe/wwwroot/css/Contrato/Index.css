@@ -1,0 +1,100 @@
+
+h2 {
+    text-align: center;
+    color: #2c3e50;
+    font-size: 2rem;
+    margin-bottom: 30px;
+    font-weight: 600;
+}
+
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0 auto;
+    background-color: #fff;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.table th, .table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.table th {
+    background-color: #3498db;
+    color: white;
+    font-weight: 600;
+}
+
+.table td {
+    background-color: #f9f9f9;
+    color: #34495e;
+}
+
+
+.table tr:nth-child(even) {
+    background-color: #ecf0f1;
+}
+
+.table tr:hover {
+    background-color: #f1c40f;
+}
+
+
+.table .btn {
+    padding: 8px 15px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border-radius: 5px;
+    margin: 0 5px;
+    transition: background-color 0.3s ease;
+}
+
+.table .btn-info {
+    background-color: #3498db;
+    color: white;
+    border: none;
+}
+
+.table .btn-info:hover {
+    background-color: #2980b9;
+}
+
+.table .btn-warning {
+    background-color: #f39c12;
+    color: white;
+    border: none;
+}
+
+.table .btn-warning:hover {
+    background-color: #e67e22;
+}
+
+.table .btn-danger {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+}
+
+.table .btn-danger:hover {
+    background-color: #c0392b;
+}
+
+a.btn-success {
+    display: block;
+    margin: 30px auto;
+    padding: 12px 25px;
+    background-color: #2ecc71;
+    color: white;
+    text-align: center;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+}
+
+a.btn-success:hover {
+    background-color: #27ae60;
+}

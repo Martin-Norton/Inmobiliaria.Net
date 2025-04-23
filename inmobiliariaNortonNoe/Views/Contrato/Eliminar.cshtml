@@ -2,6 +2,7 @@
 @{
     ViewData["Title"] = "Eliminar Contrato";
 }
+<link rel="stylesheet" href="~/css/Contrato/Eliminar.css">
 <h2>Eliminar Contrato</h2>
 <p>¿Estás seguro de que deseas eliminar este contrato?</p>
 <p><strong>ID Inmueble:</strong> @Model.ID_Inmueble</p>
@@ -9,8 +10,8 @@
 <p><strong>Fecha Inicio:</strong> @Model.Fecha_Inicio.ToShortDateString()</p>
 <p><strong>Fecha Fin:</strong> @Model.Fecha_Fin.ToShortDateString()</p>
 <p><strong>Monto:</strong> @Model.Monto_Alquiler</p>
-<form asp-action="Eliminar" method="post">
+<form asp-action="Eliminar" method="post" class="delete">
     <input type="hidden" asp-for="ID_Contrato" />
-    <button type="submit" class="btn btn-danger">Eliminar</button>
+    <button type="submit" class="btn btn-danger" class="bt">Eliminar</button>
     <a class="btn btn-secondary" asp-action="Index">Cancelar</a>
 </form>
