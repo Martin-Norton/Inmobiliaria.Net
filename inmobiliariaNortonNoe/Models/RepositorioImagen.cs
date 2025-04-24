@@ -11,7 +11,6 @@ namespace inmobiliariaNortonNoe.Models
         public RepositorioImagen(IConfiguration configuration) : base(configuration)
         {
         }
-
         public int Alta(Imagen p)
         {
             int res = -1;
@@ -28,7 +27,6 @@ namespace inmobiliariaNortonNoe.Models
             }
             return res;
         }
-
         public int Baja(int id)
         {
             int res = -1;
@@ -44,7 +42,6 @@ namespace inmobiliariaNortonNoe.Models
             }
             return res;
         }
-
         public int Modificacion(Imagen p)
         {
             int res = -1;
@@ -61,7 +58,6 @@ namespace inmobiliariaNortonNoe.Models
             }
             return res;
         }
-
         public Imagen ObtenerPorId(int id)
         {
             Imagen res = null;
