@@ -110,7 +110,7 @@ button.btn, a.btn {
     transform: scale(1.05);
 }
 
-/* Centrado del contenedor principal */
+
 dl.row {
     max-width: 800px;
     margin: 0 auto 40px;
@@ -122,18 +122,15 @@ dl.row {
     text-align: center;
 }
 
-/* Etiquetas y valores alineados al centro */
 dt, dd {
     text-align: center;
     width: 100%;
 }
 
-/* Centrado de subtítulos */
 h2, h5 {
     text-align: center;
 }
 
-/* Centrado de botones */
 a.btn {
     display: inline-block;
     margin: 15px 10px;

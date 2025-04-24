@@ -1,4 +1,4 @@
-/* General Styling */
+
 h2 {
     text-align: center;
     color: #2c3e50;
@@ -23,7 +23,6 @@ p {
     margin: 5px 0;
 }
 
-/* Action Buttons */
 a.btn {
     padding: 12px 25px;
     font-size: 1rem;
@@ -65,7 +64,6 @@ a.btn-danger:hover {
     background-color: #c0392b;
 }
 
-/* Additional Container Styling */
 .container {
     max-width: 800px;
     margin: 0 auto;

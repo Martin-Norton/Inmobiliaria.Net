@@ -1,4 +1,4 @@
-/* General styling */
+
 .confirmation-container {
     max-width: 600px;
     margin: 30px auto;
@@ -40,7 +40,6 @@ hr {
     border: 1px solid #ddd;
 }
 
-/* Form Actions Styling */
 .form-actions {
     text-align: center;
     margin-top: 20px;
