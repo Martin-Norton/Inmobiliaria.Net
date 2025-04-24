@@ -76,7 +76,13 @@ namespace inmobiliariaNortonNoe.Controllers
         [Authorize(Roles = "Inmobiliaria, Administrador")]
         public ActionResult Create(Contrato contrato)
         {
-            if (!ModelState.IsValid) return View(contrato);
+            if (!ModelState.IsValid){
+                
+                ModelState.AddModelError("", "Campos vacios o incorrectos");
+                ViewBag.inmuebles = new SelectList(repoInmueble.ObtenerTodos(), "Id", "Direccion");
+                ViewBag.Inquilinos = new SelectList(repoInquilino.ObtenerTodos(), "Id", "Nombre");
+                return View(contrato);
+            } 
 
             if (repositorio.ExisteContratoSuperpuesto(contrato.ID_Inmueble, contrato.Fecha_Inicio, contrato.Fecha_Fin))
             {
