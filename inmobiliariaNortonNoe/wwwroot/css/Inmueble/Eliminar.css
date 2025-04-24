@@ -1,0 +1,83 @@
+body {
+    background-color: #f5f5f5;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+h2 {
+    text-align: center;
+    margin-top: 30px;
+    color: #c0392b;
+    font-size: 2rem;
+    font-weight: 600;
+}
+
+h3 {
+    text-align: center;
+    color: #2c3e50;
+    font-weight: normal;
+    margin-top: 15px;
+    font-size: 1.2rem;
+}
+
+dl.row {
+    max-width: 600px;
+    margin: 30px auto;
+    background-color: #ffffff;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    font-size: 1rem;
+}
+
+dt {
+    font-weight: 600;
+    color: #34495e;
+}
+
+dd {
+    margin-bottom: 15px;
+    color: #555;
+}
+
+form {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-top: 30px;
+}
+
+form button,
+form a {
+    padding: 10px 20px;
+    font-size: 1rem;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    min-width: 120px;
+    text-align: center;
+}
+
+form .btn-danger {
+    background-color: #e74c3c;
+    border: none;
+    color: white;
+}
+
+form .btn-danger:hover {
+    background-color: #c0392b;
+    transform: scale(1.05);
+}
+
+form .btn-secondary {
+    background-color: #95a5a6;
+    color: white;
+    border: none;
+}
+
+form .btn-secondary:hover {
+    background-color: #7f8c8d;
+    transform: scale(1.05);
+}

@@ -1,0 +1,89 @@
+body {
+    background: linear-gradient(135deg, #e0f7fa, #fff3e0);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+h2, h4, h5 {
+    text-align: center;
+    color: #2c3e50;
+    font-size: 2rem;
+    margin-bottom: 30px;
+    font-weight: 600;
+}
+
+dl.row {
+    max-width: 800px;
+    margin: 0 auto 40px;
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.08);
+    animation: fadeIn 0.6s ease-in-out;
+    text-align: center;
+}
+
+dt, dd {
+    font-size: 1.1rem;
+    color: #34495e;
+    margin-bottom: 10px;
+}
+
+.imagen-portada,
+.otras-imagenes {
+    text-align: center;
+    margin: 20px 0;
+}
+
+.img-thumbnail {
+    max-width: 200px;
+    margin: 10px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.botones {
+    text-align: center;
+    margin: 30px 0;
+}
+
+a.btn {
+    padding: 10px 20px;
+    font-size: 1rem;
+    font-weight: 500;
+    border-radius: 10px;
+    margin: 10px;
+    display: inline-block;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+/* Botón warning estilo personalizado */
+a.btn-warning {
+    background: linear-gradient(45deg, #f39c12, #e67e22);
+    color: white;
+    border: none;
+}
+a.btn-warning:hover {
+    background: linear-gradient(45deg, #d35400, #e67e22);
+    transform: scale(1.05);
+}
+
+/* Botón secundario */
+a.btn-secondary {
+    background-color: #bdc3c7;
+    color: #2c3e50;
+    border: none;
+}
+a.btn-secondary:hover {
+    background-color: #a6acaf;
+    color: #2c3e50;
+    transform: scale(1.05);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
