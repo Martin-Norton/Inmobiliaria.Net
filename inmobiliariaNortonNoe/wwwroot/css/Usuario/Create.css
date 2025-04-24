@@ -1,0 +1,135 @@
+
+body {
+    background: linear-gradient(135deg, #e0f7fa, #fff3e0);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+main{
+    background-color: transparent;
+    border-style: none;
+    border: none;
+}
+
+
+.cont {
+    max-width: 650px;
+    margin: 50px auto;
+    padding: 40px;
+    background-color: white; 
+    border-radius: 20px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+    animation: fadeIn 0.6s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+h1 {
+    text-align: center;
+    color: #333;
+    font-size: 2rem;
+    margin-bottom: 30px;
+    letter-spacing: 1px;
+}
+
+.form-group {
+    margin-bottom: 25px;
+}
+
+.form-group label {
+    font-weight: 600;
+    margin-bottom: 8px;
+    display: block;
+    color: #444;
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px 16px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    background-color: #fdfdfd;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+}
+
+.form-control:focus {
+    border-color: #00acc1;
+    box-shadow: 0 0 8px rgba(0, 172, 193, 0.3);
+    outline: none;
+}
+
+
+.text-danger {
+    font-size: 0.9rem;
+    color: #d9534f;
+    margin-top: 6px;
+}
+
+button.btn, a.btn {
+    padding: 12px 22px;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 500;
+    margin-right: 10px;
+    min-width: 140px;
+    text-align: center;
+    display: inline-block;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background: linear-gradient(45deg, #00bcd4, #007bff);
+    border: none;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(45deg, #0097a7, #0056b3);
+    transform: scale(1.05);
+}
+
+.btn-secondary {
+    background: linear-gradient(45deg, #757575, #616161);
+    border: none;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: linear-gradient(45deg, #5e5e5e, #424242);
+    transform: scale(1.05);
+}
+
+dl.row {
+    max-width: 800px;
+    margin: 0 auto 40px;
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.08);
+    animation: fadeIn 0.6s ease-in-out;
+    text-align: center;
+}
+
+dt, dd {
+    text-align: center;
+    width: 100%;
+}
+
+h2, h5 {
+    text-align: center;
+}
+
+a.btn {
+    display: inline-block;
+    margin: 15px 10px;
+}
+
+.botones {
+    text-align: center;
+    margin-top: 20px;
+}

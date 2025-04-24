@@ -3,7 +3,7 @@
 @{
     ViewData["Title"] = "Detalles del Inquilino";
 }
-
+<link rel="stylesheet" href="~/css/Inquilino/Details.css">
 <h2>Detalles del Inquilino</h2>
 
 <div class="form-group">
@@ -31,6 +31,8 @@
     <p>@Model.Telefono</p>
 </div>
 
-<a asp-action="Index" class="btn btn-secondary">Volver</a>
-<a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Editar</a>
-<a asp-action="Eliminar" asp-route-id="@Model.Id" class="btn btn-danger">Eliminar</a>
+<div class="button-group">
+    <a asp-action="Index" class="btn btn-secondary">Volver</a>
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Editar</a>
+    <a asp-action="Eliminar" asp-route-id="@Model.Id" class="btn btn-danger">Eliminar</a>
+</div>

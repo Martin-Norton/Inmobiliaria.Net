@@ -3,10 +3,10 @@
 @{
     ViewData["Title"] = "Crear Inquilino";
 }
-
+<link rel="stylesheet" href="~/css/Inquilino/Create.css">
 <h2>Crear Inquilino</h2>
 
-<form asp-action="Create" method="post">
+<form asp-action="Create" method="post" class="for">
     <div class="form-group">
         <label asp-for="Nombre"></label>
         <input asp-for="Nombre" class="form-control"  required/>
@@ -32,6 +32,6 @@
         <input asp-for="Telefono" class="form-control" required />
         <span asp-validation-for="Telefono" class="text-danger"></span>
     </div>
-    <button type="submit" class="btn btn-primary">Guardar</button>
+    <button type="submit" class="btn btn-primary" class="bt">Guardar</button>
     <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
 </form>
