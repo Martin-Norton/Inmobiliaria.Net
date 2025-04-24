@@ -3,10 +3,11 @@
 @{
     ViewData["Title"] = "Eliminar Pago";
 }
+<link rel="stylesheet" href="~/css/Pago/Delete.css" />
 
 <h2>¿Estás seguro que deseas eliminar este pago?</h2>
 
-<div>
+<div class="confirmation-container">
     <h4>Pago</h4>
     <hr />
     <dl class="row">
@@ -20,10 +21,11 @@
         <dd class="col-sm-10">@Model.Monto</dd>
     </dl>
 
-    <form asp-action="Delete" method="post">
+    <form asp-action="Delete" method="post" class="form-actions">
         <input type="hidden" asp-for="Id" />
         <input type="hidden" asp-for="Id_Contrato" />
         <button type="submit" class="btn btn-danger">Eliminar</button>
         <a asp-action="PagosPorContrato" asp-route-idContrato="@Model.Id_Contrato" class="btn btn-secondary">Cancelar</a>
     </form>
 </div>
+

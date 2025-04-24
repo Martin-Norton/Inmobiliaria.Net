@@ -3,10 +3,11 @@
 @{
     ViewData["Title"] = "Cargar Pago";
 }
+<link rel="stylesheet" href="~/css/Pago/Create.css" />
 
 <h2>Cargar Pago</h2>
 
-<form asp-action="Create" method="post">
+<form asp-action="Create" method="post" class="for">
     <div class="form-group">
         <label asp-for="Id_Contrato"></label>
         <input asp-for="Id_Contrato" class="form-control"  required/>
@@ -22,7 +23,7 @@
         <input asp-for="Monto" class="form-control" required />
         <span asp-validation-for="Monto" class="text-danger"></span>
     </div>
-    <button type="submit" class="btn btn-primary">Guardar</button>
+    <button type="submit" class="btn btn-primary" class="bt">Guardar</button>
     <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
 </form>
 
