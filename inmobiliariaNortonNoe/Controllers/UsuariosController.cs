@@ -136,6 +136,7 @@ namespace inmobiliariaNortonNoe.Controllers
                 userActual.Apellido = u.Apellido;
                 userActual.Email = u.Email;
                 userActual.Rol = u.Rol;
+				userActual.Avatar = u.Avatar;
 
 				repositorio.Modificacion(userActual);
                 TempData["Mensaje"] = "Usuario actualizado correctamente.";
@@ -173,6 +174,26 @@ namespace inmobiliariaNortonNoe.Controllers
                     usuarioActual.Nombre = u.Nombre;
                     usuarioActual.Apellido = u.Apellido;
                     usuarioActual.Email = u.Email; 
+					usuarioActual.Rol = u.Rol;
+					if (u.AvatarFile != null && u.Id > 0)
+					{
+						string wwwPath = environment.WebRootPath;
+						string path = Path.Combine(wwwPath, "Uploads", "Avatars");
+						if (!Directory.Exists(path))
+						{
+							Directory.CreateDirectory(path);
+						}
+						string fileName = "avatar_" + u.Id + Path.GetExtension(u.AvatarFile.FileName);
+						string pathCompleto = Path.Combine(path, fileName);
+						u.Avatar = Path.Combine("/Uploads/Avatars", fileName);
+
+						using (FileStream stream = new FileStream(pathCompleto, FileMode.Create))
+						{
+							u.AvatarFile.CopyTo(stream);
+						}
+						usuarioActual.Avatar = u.Avatar;
+	
+					}	
 
                     repositorio.Modificacion(usuarioActual);
                     TempData["Mensaje"] = "Perfil actualizado correctamente.";
@@ -187,7 +208,7 @@ namespace inmobiliariaNortonNoe.Controllers
                 }
             }
 
-            return View("Edit", u);
+            return View("Index", u);
 		}
 
 
@@ -346,7 +367,7 @@ namespace inmobiliariaNortonNoe.Controllers
         private string GetMimeType(string extension) {
             switch (extension.ToLower()) {
                 case ".png": return "image/png";
-                case ".jpg":
+                case ".jpg": return "image/jpg";
                 case ".jpeg": return "image/jpeg";
                 case ".gif": return "image/gif";
                 default: return "application/octet-stream";
