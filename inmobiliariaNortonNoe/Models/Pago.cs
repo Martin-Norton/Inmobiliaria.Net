@@ -21,5 +21,10 @@ namespace inmobiliariaNortonNoe.Models
         [Range(1, double.MaxValue, ErrorMessage = "El importe debe ser mayor a 0.")]
         public decimal Monto { get; set; }
 
+        public int Estado { get; set; } = 1;
+
+        public int Id_UsuarioAlta { get; set; }
+
+        public int Id_UsuarioBaja { get; set; }
     }
 }

@@ -10,15 +10,19 @@ namespace inmobiliariaNortonNoe.Models
         public RepositorioContrato(IConfiguration configuration) : base(configuration)
         {
         }
-
         public int Alta(Contrato contrato)
+        {
+            throw new NotImplementedException("Usar la versión con ID de usuario");
+        }
+
+        public int Alta(Contrato contrato, int ID_UsuarioAlta)
         {
             int res = -1;
             using (var connection = new MySqlConnection(connectionString))
             {
                 string sql = @"INSERT INTO Contrato 
-                    (ID_Inmueble, ID_Inquilino, Fecha_Inicio, Fecha_Fin, Monto_Alquiler, Multa, Estado) 
-                    VALUES (@idInmueble, @idInquilino, @fechaInicio, @fechaFin, @montoAlquiler, @multa, @estado);
+                    (ID_Inmueble, ID_Inquilino, Fecha_Inicio, Fecha_Fin, Monto_Alquiler, Multa, Estado, EstadoLogico, ID_UsuarioAlta) 
+                    VALUES (@idInmueble, @idInquilino, @fechaInicio, @fechaFin, @montoAlquiler, @multa, @estado, 1,@idUsuarioAlta);
                     SELECT LAST_INSERT_ID();";
                 using (var command = new MySqlCommand(sql, connection))
                 {
@@ -30,7 +34,8 @@ namespace inmobiliariaNortonNoe.Models
                     command.Parameters.AddWithValue("@montoAlquiler", contrato.Monto_Alquiler);
                     command.Parameters.AddWithValue("@multa", contrato.Multa);
                     command.Parameters.AddWithValue("@estado", contrato.Estado);
-                    
+                    command.Parameters.AddWithValue("@estadoLogico", 1);
+                    command.Parameters.AddWithValue("@idUsuarioAlta", ID_UsuarioAlta);                    
                     connection.Open();
                     res = Convert.ToInt32(command.ExecuteScalar());
                     contrato.ID_Contrato = res;
@@ -39,16 +44,24 @@ namespace inmobiliariaNortonNoe.Models
             }
             return res;
         }
+        public int Baja(int contrato)
+        {
+            throw new NotImplementedException("Usar la versión con ID de usuario");
+        }
 
-        public int Baja(int id)
+
+        public int Baja(int id, int idUsuarioBaja)
         {
             int res = -1;
             using (var connection = new MySqlConnection(connectionString))
             {
-                string sql = @"DELETE FROM Contrato WHERE ID_Contrato = @id";
+                string sql = @"UPDATE Contrato 
+                    SET  EstadoLogico=0, ID_UsuarioBaja=@idUsuarioBaja 
+                    WHERE ID_Contrato=@id";
                 using (var command = new MySqlCommand(sql, connection))
                 {
                     command.Parameters.AddWithValue("@id", id);
+                    command.Parameters.AddWithValue("@idUsuarioBaja", idUsuarioBaja);
                     connection.Open();
                     res = command.ExecuteNonQuery();
                     connection.Close();
@@ -90,7 +103,7 @@ namespace inmobiliariaNortonNoe.Models
             IList<Contrato> res = new List<Contrato>();
             using (var connection = new MySqlConnection(connectionString))
             {
-                string sql = @"SELECT * FROM Contrato";
+                string sql = @"SELECT * FROM Contrato WHERE EstadoLogico=1";
                 using (var command = new MySqlCommand(sql, connection))
                 {
                     connection.Open();
@@ -121,7 +134,7 @@ namespace inmobiliariaNortonNoe.Models
             Contrato contrato = null;
             using (var connection = new MySqlConnection(connectionString))
             {
-                string sql = @"SELECT * FROM Contrato WHERE ID_Contrato=@id";
+                string sql = @"SELECT * FROM Contrato WHERE ID_Contrato=@id AND EstadoLogico=1"; ;
                 using (var command = new MySqlCommand(sql, connection))
                 {
                     command.Parameters.AddWithValue("@id", id);
@@ -151,7 +164,7 @@ namespace inmobiliariaNortonNoe.Models
                     Contrato contrato = null;
                     using (var connection = new MySqlConnection(connectionString))
                     {
-                        string sql = @"SELECT * FROM Contrato WHERE ID_Inmueble = @idInmueble";
+                        string sql = @"SELECT * FROM Contrato WHERE ID_Inmueble = @idInmueble AND EstadoLogico=1";
                         using (var command = new MySqlCommand(sql, connection))
                         {
                             command.Parameters.AddWithValue("@idInmueble", idInmueble);
@@ -174,7 +187,7 @@ namespace inmobiliariaNortonNoe.Models
             List<Contrato> contratos = new List<Contrato>();
             using (var connection = new MySqlConnection(connectionString))
             {
-                string sql = @"SELECT * FROM Contrato WHERE Estado = 'Vigente'";
+                string sql = @"SELECT * FROM Contrato WHERE Estado = 'Vigente'  AND EstadoLogico=1";
                 using (var command = new MySqlCommand(sql, connection))
                 {
                     connection.Open();
@@ -196,7 +209,7 @@ namespace inmobiliariaNortonNoe.Models
             List<Contrato> contratos = new List<Contrato>();
             using (var connection = new MySqlConnection(connectionString))
             {
-                string sql = @"SELECT * FROM Contrato WHERE ID_Inquilino = @idInquilino";
+                string sql = @"SELECT * FROM Contrato WHERE ID_Inquilino = @idInquilino AND EstadoLogico=1";
                 using (var command = new MySqlCommand(sql, connection))
                 {
                     command.Parameters.AddWithValue("@idInquilino", idInquilino);
@@ -276,7 +289,7 @@ namespace inmobiliariaNortonNoe.Models
             {
                 string sql = @"SELECT COUNT(*) FROM Contrato 
                             WHERE ID_Inmueble = @idInmueble
-                            AND ((@fechaInicio <= Fecha_Fin AND @fechaFin >= Fecha_Inicio))";
+                            AND ((@fechaInicio <= Fecha_Fin AND @fechaFin >= Fecha_Inicio)) AND EstadoLogico=1";
                 using (var command = new MySqlCommand(sql, connection))
                 {
                     command.Parameters.AddWithValue("@idInmueble", idInmueble);
@@ -294,7 +307,7 @@ namespace inmobiliariaNortonNoe.Models
             {
                 string sql = @"SELECT COUNT(*) FROM Contrato 
                             WHERE ID_Inmueble = @idInmueble
-                            AND ((@fechaInicio <= Fecha_Fin AND @fechaFin >= Fecha_Inicio)) AND ID_Contrato != @idContrato";
+                            AND ((@fechaInicio <= Fecha_Fin AND @fechaFin >= Fecha_Inicio)) AND ID_Contrato != @idContrato AND EstadoLogico=1";
                 using (var command = new MySqlCommand(sql, connection))
                 {
                     command.Parameters.AddWithValue("@idInmueble", idInmueble);

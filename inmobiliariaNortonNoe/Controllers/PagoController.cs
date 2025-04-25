@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using inmobiliariaNortonNoe.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Http;
 
 
 namespace inmobiliariaNortonNoe.Controllers
@@ -12,12 +14,15 @@ namespace inmobiliariaNortonNoe.Controllers
     {
         private readonly IRepositorioPago repositorioPago;
         private readonly IRepositorioContrato repositorioContrato;
+        private readonly IRepositorioUsuario repoUsuario;
 
-        public PagoController(IRepositorioPago repositorioPago, IRepositorioContrato repositorioContrato)
+        public PagoController(IRepositorioPago repositorioPago, IRepositorioContrato repositorioContrato, IRepositorioUsuario repoUsuario)
         {
+            this.repoUsuario = repoUsuario;
             this.repositorioPago = repositorioPago;
             this.repositorioContrato = repositorioContrato;
         }
+
         [Authorize(Roles = "Inmobiliaria, Administrador")]
         public IActionResult Index()
         {
@@ -69,23 +74,38 @@ namespace inmobiliariaNortonNoe.Controllers
         {
             try
             {
-                if (ModelState.IsValid)
+                if (!ModelState.IsValid)
                 {
-                    repositorioPago.Alta(pago);
-                    return RedirectToAction(nameof(Index));
+                    ModelState.AddModelError("", "Campos vacíos o incorrectos");
+                    Console.WriteLine("Error en el modelo");
+                    var contratos = repositorioContrato.ObtenerTodos();
+                    ViewBag.Contratos = new SelectList(contratos, "ID_Contrato", "ID_Contrato");
+                    return View(pago);
                 }
 
-                var contratos = repositorioContrato.ObtenerTodos();
-                ViewBag.Contratos = new SelectList(contratos, "ID_Contrato", "ID_Contrato");
-                return View(pago);
+                var email = User.Identity.Name;
+                var usuario = repoUsuario.ObtenerPorEmail(email);
+                Console.WriteLine("Usuario: " + usuario);
+                if (usuario == null)
+                    return RedirectToAction("Login", "Usuarios");
+
+                pago.Id_UsuarioAlta = usuario.Id;
+                Console.WriteLine("EL pago tiene cargado al usuario: " + pago.Id_UsuarioAlta);
+                repositorioPago.Alta(pago, usuario.Id);
+
+                TempData["Mensaje"] = "Pago creado correctamente";
+                return RedirectToAction(nameof(Index));
             }
-            catch
+            catch (Exception ex)
             {
+                Console.WriteLine("Error al cargar el pago. enviado desde el catch");
+                ModelState.AddModelError("", "Error al crear el pago: " + ex.Message);
                 var contratos = repositorioContrato.ObtenerTodos();
                 ViewBag.Contratos = new SelectList(contratos, "ID_Contrato", "ID_Contrato");
                 return View(pago);
             }
         }
+
 
         // GET: Pago/Edit/5
         [Authorize(Roles = "Inmobiliaria, Administrador")]
@@ -147,11 +167,20 @@ namespace inmobiliariaNortonNoe.Controllers
         {
             try
             {
-                repositorioPago.Baja(id);
+                var email = User.Identity.Name;
+                var usuario = repoUsuario.ObtenerPorEmail(email);
+                Console.WriteLine("Desde delete pago controll. Usuario: " + usuario);
+
+                if (usuario == null)
+                return RedirectToAction("Login", "Usuarios");
+
+                repositorioPago.Baja(id, usuario.Id);
+
                 return RedirectToAction("PagosPorContrato", new { idContrato = pago.Id_Contrato });
             }
             catch
             {
+                Console.WriteLine("Error al eliminar el pago. enviado desde el catch");
                 return View(pago);
             }
         }

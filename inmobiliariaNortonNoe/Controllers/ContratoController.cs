@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using inmobiliariaNortonNoe.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace inmobiliariaNortonNoe.Controllers
 {
@@ -12,12 +13,14 @@ namespace inmobiliariaNortonNoe.Controllers
         private readonly IRepositorioInmueble repoInmueble;
         private readonly IRepositorioInquilino repoInquilino;
         private readonly IRepositorioContrato repositorio;
+        private readonly IRepositorioUsuario repoUsuario;
 
-        public ContratoController(IRepositorioContrato repo, IRepositorioInmueble repoInmueble, IRepositorioInquilino repoInquilino)
+        public ContratoController(IRepositorioContrato repo, IRepositorioInmueble repoInmueble, IRepositorioInquilino repoInquilino, IRepositorioUsuario repoUsuario)
         {
             this.repositorio = repo;
             this.repoInmueble = repoInmueble;
             this.repoInquilino = repoInquilino;
+            this.repoUsuario = repoUsuario;
         }
 
         [Authorize(Roles = "Inmobiliaria, Administrador")]
@@ -70,32 +73,51 @@ namespace inmobiliariaNortonNoe.Controllers
 
             return View(new Contrato());
         }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Inmobiliaria, Administrador")]
         public ActionResult Create(Contrato contrato)
         {
-            if (!ModelState.IsValid){
-                
-                ModelState.AddModelError("", "Campos vacios o incorrectos");
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    ModelState.AddModelError("", "Campos vacios o incorrectos");
+                    ViewBag.inmuebles = new SelectList(repoInmueble.ObtenerTodos(), "Id", "Direccion");
+                    ViewBag.Inquilinos = new SelectList(repoInquilino.ObtenerTodos(), "Id", "Nombre");
+                    return View(contrato);
+                }
+
+                if (repositorio.ExisteContratoSuperpuesto(contrato.ID_Inmueble, contrato.Fecha_Inicio, contrato.Fecha_Fin))
+                {
+                    ModelState.AddModelError("", "Ya existe un contrato para este inmueble en las fechas seleccionadas.");
+                    ViewBag.inmuebles = new SelectList(repoInmueble.ObtenerTodos(), "Id", "Direccion");
+                    ViewBag.Inquilinos = new SelectList(repoInquilino.ObtenerTodos(), "Id", "Nombre");
+                    return View(contrato);
+                }
+
+                var email = User.Identity.Name;
+                var usuario = repoUsuario.ObtenerPorEmail(email);
+
+                if (usuario == null)
+                    return RedirectToAction("Login", "Usuarios");
+
+                contrato.ID_UsuarioAlta = usuario.Id;
+
+                repositorio.Alta(contrato, usuario.Id);
+
+                TempData["Mensaje"] = "Contrato creado correctamente";
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", "Error al crear el contrato: " + ex.Message);
                 ViewBag.inmuebles = new SelectList(repoInmueble.ObtenerTodos(), "Id", "Direccion");
                 ViewBag.Inquilinos = new SelectList(repoInquilino.ObtenerTodos(), "Id", "Nombre");
                 return View(contrato);
-            } 
-
-            if (repositorio.ExisteContratoSuperpuesto(contrato.ID_Inmueble, contrato.Fecha_Inicio, contrato.Fecha_Fin))
-            {
-                ModelState.AddModelError("", "Ya existe un contrato para este inmueble en las fechas seleccionadas.");
-                ViewBag.inmuebles = new SelectList(repoInmueble.ObtenerTodos(), "Id", "Direccion");
-                ViewBag.Inquilinos = new SelectList(repoInquilino.ObtenerTodos(), "Id", "Nombre");
-                return RedirectToAction(nameof(Index));
             }
-
-            repositorio.Alta(contrato);
-            TempData["Mensaje"] = "Contrato creado correctamente";
-            return RedirectToAction(nameof(Index));
         }
+
 
         [Authorize(Roles = "Inmobiliaria, Administrador")]
         public ActionResult Edit(int id)
@@ -144,7 +166,15 @@ namespace inmobiliariaNortonNoe.Controllers
         [Authorize(Roles = "Inmobiliaria, Administrador")]
         public ActionResult Eliminar(int id, Contrato entidad)
         {
-            repositorio.Baja(id);
+            var email = User.Identity.Name;
+            var usuario = repoUsuario.ObtenerPorEmail(email);
+
+            if (usuario == null)
+                return RedirectToAction("Login", "Usuarios");
+
+            entidad.ID_UsuarioAlta = usuario.Id;
+            repositorio.Baja(id, usuario.Id);
+
             TempData["Mensaje"] = "Contrato eliminado correctamente";
             return RedirectToAction(nameof(Index));
         }

@@ -9,5 +9,7 @@ namespace inmobiliariaNortonNoe.Models
         IList<Pago> ObtenerPagosPorContrato(int idContrato);
         IList<Pago> ObtenerLista(int paginaNro, int tamPagina);
         int ObtenerCantidad();
+        int Alta(Pago pago, int idUsuarioAlta);
+        int Baja(int id, int idUsuarioBaja);
     }
 }

@@ -30,6 +30,10 @@ namespace inmobiliariaNortonNoe.Models
         public decimal Multa { get; set; }
 
         [Required(ErrorMessage = "El estado del contrato es obligatorio.")]
-        public string Estado { get; set; } // Vigente, Terminado, Anulado
+        public string Estado { get; set; }
+
+        public int EstadoLogico { get; set; } = 1;
+        public int ID_UsuarioAlta { get; set; }
+        public int? ID_UsuarioBaja { get; set; } 
     }
 }

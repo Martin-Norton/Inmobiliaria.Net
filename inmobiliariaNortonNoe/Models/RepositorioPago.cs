@@ -6,21 +6,27 @@ namespace inmobiliariaNortonNoe.Models
 {
     public class RepositorioPago : RepositorioBase, IRepositorioPago
     {
+        public int Alta(Pago pago)
+        {
+            throw new NotImplementedException("Usar la versión con ID de usuario");
+        }
+
         public RepositorioPago(IConfiguration configuration) : base(configuration) { }
 
-        public int Alta(Pago pago)
+        public int Alta(Pago pago, int idUsuario)
         {
             int res = -1;
             using (var connection = new MySqlConnection(connectionString))
             {
-                string sql = @"INSERT INTO Pago (id_contrato, fecha_pago, monto)
-                            VALUES (@idContrato,  @fechaPago, @Monto);
+                string sql = @"INSERT INTO Pago (id_contrato, fecha_pago, monto, Estado, ID_UsuarioAlta)
+                            VALUES (@idContrato,  @fechaPago, @Monto, 1, @idUsuario);
                             SELECT LAST_INSERT_ID();";
                 using (var command = new MySqlCommand(sql, connection))
                 {
                     command.Parameters.AddWithValue("@idContrato", pago.Id_Contrato);
                     command.Parameters.AddWithValue("@fechaPago", pago.Fecha_Pago);
                     command.Parameters.AddWithValue("@Monto", pago.Monto);
+                    command.Parameters.AddWithValue("@idUsuario", pago.Id_UsuarioAlta);
 
                     connection.Open();
                     res = Convert.ToInt32(command.ExecuteScalar());
@@ -38,7 +44,8 @@ namespace inmobiliariaNortonNoe.Models
             {
                 string sql = @"SELECT Id, id_contrato, fecha_pago, monto 
                             FROM Pago 
-                            WHERE id_contrato = @idContrato";
+                            WHERE id_contrato = @idContrato AND Estado = 1
+                            ORDER BY fecha_pago DESC;";
                 using (var command = new MySqlCommand(sql, connection))
                 {
                     command.Parameters.AddWithValue("@idContrato", idContrato);
@@ -60,12 +67,19 @@ namespace inmobiliariaNortonNoe.Models
             return pagos;
         }
 
-        public int Baja(int id)
+          public int Baja(int pago)
+        {
+            throw new NotImplementedException("Usar la versión con ID de usuario");
+        }
+
+        public int Baja(int id, int idUsuarioBaja)
         {
             using var connection = new MySqlConnection(connectionString);
-            var sql = @"DELETE FROM Pago WHERE Id = @id";
+            var sql = @"UPDATE Pago SET Estado=0, Id_UsuarioBaja = @idUsuarioBaja  
+                        WHERE Id=@id";
             using var command = new MySqlCommand(sql, connection);
             command.Parameters.AddWithValue("@id", id);
+            command.Parameters.AddWithValue("@idUsuarioBaja", idUsuarioBaja);
             connection.Open();
             return command.ExecuteNonQuery();
         }
@@ -89,7 +103,7 @@ namespace inmobiliariaNortonNoe.Models
         {
             Pago pago = null;
             using var connection = new MySqlConnection(connectionString);
-            var sql = @"SELECT * FROM Pago WHERE Id = @id";
+            var sql = @"SELECT * FROM Pago WHERE Id = @id and Estado = 1";
             using var command = new MySqlCommand(sql, connection);
             command.Parameters.AddWithValue("@id", id);
             connection.Open();
@@ -105,7 +119,7 @@ namespace inmobiliariaNortonNoe.Models
         {
             var lista = new List<Pago>();
             using var connection = new MySqlConnection(connectionString);
-            var sql = @"SELECT * FROM Pago";
+            var sql = @"SELECT * FROM Pago and Estado = 1";
             using var command = new MySqlCommand(sql, connection);
             connection.Open();
             using var reader = command.ExecuteReader();
@@ -120,7 +134,7 @@ namespace inmobiliariaNortonNoe.Models
         {
             var lista = new List<Pago>();
             using var connection = new MySqlConnection(connectionString);
-            var sql = @"SELECT * FROM Pago WHERE id_contrato = @idContrato";
+            var sql = @"SELECT * FROM Pago WHERE id_contrato = @idContrato and Estado = 1";
             using var command = new MySqlCommand(sql, connection);
             command.Parameters.AddWithValue("@idContrato", idContrato);
             connection.Open();
@@ -169,5 +183,4 @@ namespace inmobiliariaNortonNoe.Models
             };
         }
     }
-
 }
