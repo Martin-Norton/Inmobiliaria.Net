@@ -1,11 +1,11 @@
 @model IEnumerable<inmobiliariaNortonNoe.Models.Pago>
 
 @{
-    ViewData["Title"] = "Pagos del Contrato";
+    ViewData["Title"] = "Pagos dados de baja del Contrato";
 }
 
 <link rel="stylesheet" href="~/css/Pago/PagosPorContrato.css" />
-<h2>Pagos del Contrato #@ViewBag.IdContrato</h2>
+<h2>Pagos anulados del Contrato #@ViewBag.IdContrato</h2>
 
 <table class="table">
     <thead>
@@ -22,33 +22,13 @@
                 <td>@pago.Id</td>
                 <td>@pago.Fecha_Pago.ToShortDateString()</td>
                 <td>@pago.Monto.ToString("C")</td>
-            </tr>
-        }
-    </tbody>
-</table>
-
-<tbody>
-    @foreach (var pago in Model)
-    {
-        <tr>
-            <td>@pago.Id</td>
-            <td>@pago.Fecha_Pago.ToShortDateString()</td>
-            <td>@pago.Monto.ToString("C")</td>
-            <td>
-                <a class="btn btn-danger btn-sm"
-                   asp-action="Delete"
-                   asp-route-id="@pago.Id">Eliminar</a>
-            </td>
-            <td>
+                 <td>
                 <a class="btn btn-info btn-sm"
                    asp-action="Details"
                    asp-route-id="@pago.Id">Detalles</a> 
             </td>
-        </tr>
-    }
-</tbody>
-
-<a asp-action="Create" asp-route-idContrato="@ViewBag.IdContrato" class="btn btn-success mt-3">
-    Agregar Pago a este Contrato
-</a>
+            </tr>
+        }
+    </tbody>
+</table>
 <a class="btn btn-secondary" asp-controller="Contrato" asp-action="Details" asp-route-id="@ViewBag.IdContrato">Volver al Contrato</a>

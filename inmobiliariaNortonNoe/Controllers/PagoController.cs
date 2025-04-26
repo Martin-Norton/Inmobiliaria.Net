@@ -28,13 +28,46 @@ namespace inmobiliariaNortonNoe.Controllers
         {
             return View();
         }
+
         [Authorize(Roles = "Inmobiliaria, Administrador")]
         public IActionResult PagosPorContrato(int idContrato)
         {
             var pagos = repositorioPago.ObtenerPagosPorContrato(idContrato);
+
             ViewBag.IdContrato = idContrato;
             return View(pagos);
         }
+
+        [Authorize(Roles = "Administrador")]
+        public IActionResult PagosDeBajaPorContrato(int idContrato)
+        {
+            var pagos = repositorioPago.ObtenerPagosDeBajaPorContrato(idContrato);
+            ViewBag.IdContrato = idContrato;
+            return View(pagos);
+        }
+
+        [Authorize(Roles = "Inmobiliaria, Administrador")]
+        public ActionResult Details(int id)
+        {
+            var entidad = repositorioPago.ObtenerPorId(id);
+            if (entidad == null) return NotFound();
+
+            var usuarioAlta = repoUsuario.ObtenerPorId(entidad.Id_UsuarioAlta);
+            Console.WriteLine("Usuario Alta: " + usuarioAlta);
+            ViewBag.UsuarioEmailAlta = usuarioAlta?.Email ?? "No disponible";
+
+            if (entidad.Id_UsuarioBaja != null)
+            {
+                var usuarioBaja = repoUsuario.ObtenerPorId(entidad.Id_UsuarioBaja.Value);
+                ViewBag.UsuarioEmailBaja = usuarioBaja?.Email ?? "No disponible";
+            }
+            else
+            {
+                ViewBag.UsuarioEmailBaja = null;
+            }
+            return View(entidad);
+        }
+
         [Authorize(Roles = "Inmobiliaria, Administrador")]
         public IActionResult Create2(int? idContrato)
         {

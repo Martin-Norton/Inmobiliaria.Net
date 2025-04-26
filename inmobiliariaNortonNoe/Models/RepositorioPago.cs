@@ -42,7 +42,7 @@ namespace inmobiliariaNortonNoe.Models
             var pagos = new List<Pago>();
             using (var connection = new MySqlConnection(connectionString))
             {
-                string sql = @"SELECT Id, id_contrato, fecha_pago, monto 
+                string sql = @"SELECT Id, id_contrato, fecha_pago, monto, ID_UsuarioAlta
                             FROM Pago 
                             WHERE id_contrato = @idContrato AND Estado = 1
                             ORDER BY fecha_pago DESC;";
@@ -58,7 +58,8 @@ namespace inmobiliariaNortonNoe.Models
                             Id = reader.GetInt32("Id"),
                             Id_Contrato = reader.GetInt32("id_contrato"),
                             Fecha_Pago = reader.GetDateTime("fecha_pago"),
-                            Monto = reader.GetDecimal("monto")
+                            Monto = reader.GetDecimal("monto"),
+                            Id_UsuarioAlta = reader.GetInt32("ID_UsuarioAlta")
                         });
                     }
                     connection.Close();
@@ -103,7 +104,7 @@ namespace inmobiliariaNortonNoe.Models
         {
             Pago pago = null;
             using var connection = new MySqlConnection(connectionString);
-            var sql = @"SELECT * FROM Pago WHERE Id = @id and Estado = 1";
+            var sql = @"SELECT * FROM Pago WHERE Id = @id";
             using var command = new MySqlCommand(sql, connection);
             command.Parameters.AddWithValue("@id", id);
             connection.Open();
@@ -130,11 +131,14 @@ namespace inmobiliariaNortonNoe.Models
             return lista;
         }
 
-        public IList<Pago> ObtenerPorContrato(int idContrato)
+        public IList<Pago> ObtenerPagosDeBajaPorContrato(int idContrato)
         {
             var lista = new List<Pago>();
             using var connection = new MySqlConnection(connectionString);
-            var sql = @"SELECT * FROM Pago WHERE id_contrato = @idContrato and Estado = 1";
+            var sql = @"SELECT Id, id_contrato, fecha_pago, monto, ID_UsuarioAlta, ID_UsuarioBaja 
+                            FROM Pago 
+                            WHERE id_contrato = @idContrato AND Estado = 0
+                            ORDER BY fecha_pago DESC;";
             using var command = new MySqlCommand(sql, connection);
             command.Parameters.AddWithValue("@idContrato", idContrato);
             connection.Open();
@@ -179,7 +183,9 @@ namespace inmobiliariaNortonNoe.Models
                 Id = reader.GetInt32("Id"),
                 Id_Contrato = reader.GetInt32("Id_Contrato"),
                 Fecha_Pago = reader.GetDateTime("Fecha_Pago"),
-                Monto = reader.GetDecimal("Monto")
+                Monto = reader.GetDecimal("Monto"),
+                Id_UsuarioAlta = reader.GetInt32("ID_UsuarioAlta"),
+                Id_UsuarioBaja = reader.IsDBNull("ID_UsuarioBaja") ? (int?)null : reader.GetInt32("ID_UsuarioBaja")
             };
         }
     }

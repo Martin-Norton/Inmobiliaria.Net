@@ -1,36 +1,29 @@
-@model inmobiliariaNortonNoe.Models.Inquilino
+@model inmobiliariaNortonNoe.Models.Pago
 
 @{
-    ViewData["Title"] = "Detalles del Inquilino";
+    ViewData["Title"] = "Detalles del Pago";
 }
 <link rel="stylesheet" href="~/css/Pago/Details.css" />
-<h2>Detalles del Inquilino</h2>
+<h2>Detalles del Pago</h2>
 
-<div class="form-group">
-    <label>Nombre</label>
-    <p>@Model.Nombre</p>
-</div>
-
-<div class="form-group">
-    <label>Apellido</label>
-    <p>@Model.Apellido</p>
-</div>
-
-<div class="form-group">
-    <label>DNI</label>
-    <p>@Model.Dni</p>
-</div>
-
-<div class="form-group">
-    <label>Email</label>
-    <p>@Model.Email</p>
-</div>
-
-<div class="form-group">
-    <label>Teléfono</label>
-    <p>@Model.Telefono</p>
-</div>
+<div class="mb-2">
+    <p><strong>ID:</strong> @Model.Id</p>
+    <p><strong>Fecha de Pago:</strong> @Model.Fecha_Pago.ToShortDateString()</p>    
+    <p><strong>Monto:</strong> @Model.Monto.ToString("C")</p>
+    <p><strong>Contrato ID:</strong> @Model.Id_Contrato</p>
 
 <a asp-action="Index" class="btn btn-secondary">Volver</a>
-<a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Editar</a>
-<a asp-action="Eliminar" asp-route-id="@Model.Id" class="btn btn-danger">Eliminar</a>
+@if (User.IsInRole("Administrador"))
+{  
+    <div class="mb-2">
+        <p><strong>Cargado por:</strong> @ViewBag.UsuarioEmailAlta</p>
+    </div>
+    @if (ViewBag.UsuarioEmailBaja != null)
+    {
+        <div class="mb-2">
+            <p><strong>Anulado por:</strong> @ViewBag.UsuarioEmailBaja</p>
+        </div>
+    }else{
+        <a asp-action="Eliminar" asp-route-id="@Model.Id" class="btn btn-danger">Eliminar</a>
+    }
+}

@@ -40,14 +40,34 @@ namespace inmobiliariaNortonNoe.Controllers
             ViewBag.TotalPaginas = total % tamaño == 0 ? total / tamaño : total / tamaño + 1;
             return View(lista);
         }
-
         [Authorize(Roles = "Inmobiliaria, Administrador")]
         public ActionResult Details(int id)
         {
             var entidad = repositorio.ObtenerPorId(id);
+            if (entidad == null) return NotFound();
+
+            var usuarioAlta = repoUsuario.ObtenerPorId(entidad.ID_UsuarioAlta);
+            ViewBag.UsuarioEmailAlta = usuarioAlta?.Email ?? "No disponible";
+
+            if (entidad.ID_UsuarioBaja != null)
+            {
+                var usuarioBaja = repoUsuario.ObtenerPorId(entidad.ID_UsuarioBaja.Value);
+                ViewBag.UsuarioEmailBaja = usuarioBaja?.Email ?? "No disponible";
+            }
+            else
+            {
+                ViewBag.UsuarioEmailBaja = null;
+            }
             return View(entidad);
         }
-
+        //zona contratos baja
+            [Authorize(Roles = "Inmobiliaria, Administrador")]
+            public ActionResult IndexBajas()
+            {
+                var lista = repositorio.ObtenerTodosBaja();
+                return View(lista);
+            }
+        //fin zona contratos baja
         [Authorize(Roles = "Inmobiliaria, Administrador")]
         public ActionResult Create()
         {

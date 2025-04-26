@@ -26,12 +26,8 @@
                 <td>@c.Monto_Alquiler</td>
                 <td>
                     <a class="btn btn-info" asp-action="Details" asp-route-id="@c.ID_Contrato">Ver Más</a>
-                    <a class="btn btn-warning" asp-action="Edit" asp-route-id="@c.ID_Contrato">Editar</a>
-                    <a class="btn btn-danger" asp-action="Eliminar" asp-route-id="@c.ID_Contrato">Eliminar</a>
                 </td>
             </tr>
         }
     </tbody>
 </table>
-<a class="btn btn-success" asp-action="Create">Agregar Contrato</a>
-<a class="btn btn-secondary" asp-action="IndexBajas">Ver contratos de baja</a>

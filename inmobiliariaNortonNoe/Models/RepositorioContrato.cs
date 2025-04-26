@@ -134,7 +134,7 @@ namespace inmobiliariaNortonNoe.Models
             Contrato contrato = null;
             using (var connection = new MySqlConnection(connectionString))
             {
-                string sql = @"SELECT * FROM Contrato WHERE ID_Contrato=@id AND EstadoLogico=1"; ;
+                string sql = @"SELECT * FROM Contrato WHERE ID_Contrato=@id"; ;
                 using (var command = new MySqlCommand(sql, connection))
                 {
                     command.Parameters.AddWithValue("@id", id);
@@ -151,7 +151,9 @@ namespace inmobiliariaNortonNoe.Models
                             Fecha_Fin = reader.GetDateTime("Fecha_Fin"),
                             Monto_Alquiler = reader.GetDecimal("Monto_Alquiler"),
                             Multa = reader.GetDecimal("Multa"),
-                            Estado = reader.GetString("Estado")
+                            Estado = reader.GetString("Estado"),
+                            ID_UsuarioAlta = reader.GetInt32("ID_UsuarioAlta"),
+                            ID_UsuarioBaja = reader.IsDBNull(reader.GetOrdinal("ID_UsuarioBaja")) ? (int?)null : reader.GetInt32("ID_UsuarioBaja")
                         };
                     }
                     connection.Close();
@@ -159,28 +161,85 @@ namespace inmobiliariaNortonNoe.Models
             }
             return contrato;
         }
-        public Contrato ObtenerPorInmueble(int idInmueble)
+        //zona contratos de baja
+        public IList<Contrato> ObtenerTodosBaja()
         {
-                    Contrato contrato = null;
-                    using (var connection = new MySqlConnection(connectionString))
+            IList<Contrato> res = new List<Contrato>();
+            using (var connection = new MySqlConnection(connectionString))
+            {
+                string sql = @"SELECT * FROM Contrato WHERE EstadoLogico=0";
+                using (var command = new MySqlCommand(sql, connection))
+                {
+                    connection.Open();
+                    var reader = command.ExecuteReader();
+                    while (reader.Read())
                     {
-                        string sql = @"SELECT * FROM Contrato WHERE ID_Inmueble = @idInmueble AND EstadoLogico=1";
-                        using (var command = new MySqlCommand(sql, connection))
+                        Contrato contrato = new Contrato
                         {
-                            command.Parameters.AddWithValue("@idInmueble", idInmueble);
-                            connection.Open();
-                            using (var reader = command.ExecuteReader())
-                            {
-                                if (reader.Read())
-                                {
-                                    contrato = MapearContrato(reader);
-                                }
-                            }
-                            connection.Close();
+                            ID_Contrato = reader.GetInt32("ID_Contrato"),
+                            ID_Inmueble = reader.GetInt32("ID_Inmueble"),
+                            ID_Inquilino = reader.GetInt32("ID_Inquilino"),
+                            Fecha_Inicio = reader.GetDateTime("Fecha_Inicio"),
+                            Fecha_Fin = reader.GetDateTime("Fecha_Fin"),
+                            Monto_Alquiler = reader.GetDecimal("Monto_Alquiler"),
+                            Multa = reader.GetDecimal("Multa"),
+                            Estado = reader.GetString("Estado"),
+                            ID_UsuarioAlta = reader.GetInt32("ID_UsuarioAlta"),
+                            ID_UsuarioBaja = reader.GetInt32("ID_UsuarioBaja")
+                        };
+                        res.Add(contrato);
+                    }
+                    connection.Close();
+                }
+            }
+            return res;
+        }
+        //fin zona contratos de baja
+        public Contrato ObtenerPorInquilino(int idInquilino)
+        {
+            Contrato contrato = null;
+            using (var connection = new MySqlConnection(connectionString))
+            {
+                string sql = @"SELECT * FROM Contrato WHERE ID_Inquilino=@idInquilino AND EstadoLogico=1";
+                using (var command = new MySqlCommand(sql, connection))
+                {
+                    command.Parameters.AddWithValue("@idInquilino", idInquilino);
+                    connection.Open();
+                    using (var reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            contrato = MapearContrato(reader);
                         }
                     }
-                    return contrato;
+                    connection.Close();
                 }
+            }
+            return contrato;
+        }
+        public Contrato ObtenerPorInmueble(int idInmueble)
+        { 
+            Contrato contrato = null;
+            using (var connection = new MySqlConnection(connectionString))
+            {
+                string sql = @"SELECT * FROM Contrato WHERE ID_Inmueble = @idInmueble AND EstadoLogico=1";
+                using (var command = new MySqlCommand(sql, connection))
+                {
+                    command.Parameters.AddWithValue("@idInmueble", idInmueble);
+                    connection.Open();
+                    using (var reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            contrato = MapearContrato(reader);
+                        }
+                    }
+                    connection.Close();
+                }
+            }
+            return contrato;
+        }
+                   
 
         public IList<Contrato> ObtenerVigentes()
         {
@@ -190,29 +249,6 @@ namespace inmobiliariaNortonNoe.Models
                 string sql = @"SELECT * FROM Contrato WHERE Estado = 'Vigente'  AND EstadoLogico=1";
                 using (var command = new MySqlCommand(sql, connection))
                 {
-                    connection.Open();
-                    using (var reader = command.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            contratos.Add(MapearContrato(reader));
-                        }
-                    }
-                    connection.Close();
-                }
-            }
-            return contratos;
-        }
-
-        public IList<Contrato> ObtenerPorInquilino(int idInquilino)
-        {
-            List<Contrato> contratos = new List<Contrato>();
-            using (var connection = new MySqlConnection(connectionString))
-            {
-                string sql = @"SELECT * FROM Contrato WHERE ID_Inquilino = @idInquilino AND EstadoLogico=1";
-                using (var command = new MySqlCommand(sql, connection))
-                {
-                    command.Parameters.AddWithValue("@idInquilino", idInquilino);
                     connection.Open();
                     using (var reader = command.ExecuteReader())
                     {

@@ -6,6 +6,7 @@ namespace inmobiliariaNortonNoe.Models
 {
     public interface IRepositorioPago : IRepositorio<Pago>
     {
+        IList<Pago> ObtenerPagosDeBajaPorContrato(int idContrato);
         IList<Pago> ObtenerPagosPorContrato(int idContrato);
         IList<Pago> ObtenerLista(int paginaNro, int tamPagina);
         int ObtenerCantidad();

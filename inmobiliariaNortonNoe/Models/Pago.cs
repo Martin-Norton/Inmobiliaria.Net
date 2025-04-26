@@ -25,6 +25,6 @@ namespace inmobiliariaNortonNoe.Models
 
         public int Id_UsuarioAlta { get; set; }
 
-        public int Id_UsuarioBaja { get; set; }
+        public int ? Id_UsuarioBaja { get; set; }
     }
 }
