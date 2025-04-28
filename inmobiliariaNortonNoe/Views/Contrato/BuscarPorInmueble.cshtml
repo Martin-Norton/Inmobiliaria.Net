@@ -1,0 +1,49 @@
+@model IList<ContratoViewModel>
+
+@{
+    ViewData["Title"] = "Buscar Contratos por Inmueble";
+}
+
+<h2>Buscar Contratos por Inmueble</h2>
+
+<form method="post" asp-action="BuscarPorInmueble" asp-controller="Contrato">
+    <div class="form-group">
+        <label for="idInmueble">Inmueble</label>
+        <select id="idInmueble" name="idInmueble" class="form-control" required>
+            <option value="">Seleccione un inmueble</option>
+            @foreach (var inmueble in ViewBag.Inmuebles)
+            {
+                <option value="@inmueble.Id">@inmueble.Direccion</option>
+            }
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary mt-2">Buscar Contratos</button>
+</form>
+
+@if (Model != null && Model.Any())
+{
+    <h3 class="mt-4">Contratos encontrados:</h3>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Inquilino</th>
+                <th>Dirección Inmueble</th>
+                <th>Fecha Inicio</th>
+                <th>Fecha Fin</th>
+                <th>Precio Alquiler</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var contratoView in Model)
+            {
+                <tr>
+                    <td>@contratoView.Inquilino.Nombre @contratoView.Inquilino.Apellido</td>
+                    <td>@contratoView.Inmueble.Direccion</td>
+                    <td>@contratoView.Contrato.Fecha_Inicio.ToString("dd/MM/yyyy")</td>
+                    <td>@contratoView.Contrato.Fecha_Fin.ToString("dd/MM/yyyy")</td>
+                    <td>@contratoView.Contrato.Monto_Alquiler.ToString("C")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

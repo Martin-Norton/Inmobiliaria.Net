@@ -1,0 +1,59 @@
+@using inmobiliariaNortonNoe.Models
+@model List<Inmueble>
+
+@{
+    ViewData["Title"] = "Buscar Inmuebles por Propietario";
+    var propietarios = ViewBag.Propietarios as List<Propietario>;
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<form asp-action="BuscarPorPropietario" method="get" class="mb-4">
+    <div class="form-group">
+        <label for="propietarioId">Seleccione un Propietario:</label>
+        <select id="propietarioId" name="propietarioId" class="form-control" required>
+            <option value="">-- Seleccione Propietario --</option>
+            @if (propietarios != null)
+            {
+                foreach (var propietario in propietarios)
+                {
+                    <option value="@propietario.Id">
+                        @($"{propietario.Nombre} {propietario.Apellido}")
+                    </option>
+                }
+            }
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary mt-2">Buscar</button>
+</form>
+
+@if (Model != null && Model.Any())
+{
+    <table class="table table-striped mt-4">
+        <thead>
+            <tr>
+                <th>Dirección</th>
+                <th>Uso</th>
+                <th>Estado</th>
+                <th>Precio</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var inmueble in Model)
+            {
+                <tr>
+                    <td>@inmueble.Direccion</td>
+                    <td>@inmueble.Uso</td>
+                    <td>@inmueble.Estado</td>
+                    <td>@inmueble.Precio.ToString("C")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else if (Model != null)
+{
+    <div class="alert alert-warning mt-4">
+        No se encontraron inmuebles para el propietario seleccionado.
+    </div>
+}

@@ -60,14 +60,40 @@ namespace inmobiliariaNortonNoe.Controllers
             }
             return View(entidad);
         }
-        //zona contratos baja
-            [Authorize(Roles = "Inmobiliaria, Administrador")]
-            public ActionResult IndexBajas()
-            {
-                var lista = repositorio.ObtenerTodosBaja();
-                return View(lista);
-            }
-        //fin zona contratos baja
+    //zona Busquedas
+        [Authorize(Roles = "Inmobiliaria, Administrador")]
+        public ActionResult Busqueda(DateTime fechaInicio, DateTime fechaFin)
+        {
+            var lista = repositorio.ObtenerPorFechas(fechaInicio,fechaFin);
+            return View(lista);
+        }
+        [HttpGet]
+        public IActionResult BuscarPorInmueble()
+        {
+            var listaInmuebles = repoInmueble.ObtenerTodos();
+            ViewBag.Inmuebles = listaInmuebles;
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult BuscarPorInmueble(int idInmueble)
+        {
+            var listaInmuebles = repoInmueble.ObtenerTodos();
+            ViewBag.Inmuebles = listaInmuebles;
+            
+            var contratos = repositorio.ObtenerPorInmueble(idInmueble);
+            return View(contratos);
+        }
+    //FinZona Busquedas
+
+    //zona contratos baja
+        [Authorize(Roles = "Inmobiliaria, Administrador")]
+        public ActionResult IndexBajas()
+        {
+            var lista = repositorio.ObtenerTodosBaja();
+            return View(lista);
+        }
+    //fin zona contratos baja
         [Authorize(Roles = "Inmobiliaria, Administrador")]
         public ActionResult Create()
         {

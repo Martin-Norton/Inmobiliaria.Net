@@ -11,6 +11,7 @@ namespace inmobiliariaNortonNoe.Models
         IList<Inmueble> BuscarPorUso(string uso);
         IList<Inmueble> ObtenerPorEstado(string estado);
         IList<Inmueble> ObtenerLista(int paginaNro, int tamPagina);
+        IList<Inmueble> ObtenerPorPropietario(int idPropietario);
         int ObtenerCantidad();
         int ModificarPortada(int InmuebleId, string ruta);
     }

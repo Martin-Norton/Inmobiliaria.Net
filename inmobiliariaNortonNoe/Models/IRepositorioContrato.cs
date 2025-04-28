@@ -10,8 +10,9 @@ namespace inmobiliariaNortonNoe.Models
         int Alta(Contrato entidad, int idUsuario);
         int Baja(int id, int idUsuario);
         int Baja(int id);
+        IList<ContratoViewModel> ObtenerPorFechas(DateTime fechaInicio, DateTime fechaFin);
         IList<Contrato> ObtenerTodosBaja();
-        Contrato ObtenerPorInmueble(int idInmueble);
+        IList<ContratoViewModel> ObtenerPorInmueble(int idInmueble);
         IList<Contrato> ObtenerVigentes();
         Contrato ObtenerPorInquilino(int idInquilino);
         IList<Contrato> ObtenerLista(int paginaNro, int tamPagina);

@@ -1,0 +1,50 @@
+@using inmobiliariaNortonNoe.Models
+@model List<InmueblePropietarioViewModel>
+
+@{
+    ViewData["Title"] = "Buscar Inmuebles por Estado";
+    var estados = new List<string> { "Disponible", "No Disponible", "Suspendido"};
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<form asp-action="BuscarDisponibles" method="get" class="mb-4">
+    <div class="form-group">
+        <label for="estado">Seleccione un Estado:</label>
+        <select id="estado" name="q" class="form-control" required>
+            <option value="">-- Seleccione Estado --</option>
+            @foreach (var estado in estados)
+            {
+                <option value="@estado">@estado</option>
+            }
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary mt-2">Buscar</button>
+</form>
+
+@if (Model != null && Model.Any())
+{
+    <table class="table table-striped mt-4">
+        <thead>
+            <tr>
+                <th>Dirección del Inmueble</th>
+                <th>Nombre del Propietario</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@(item.Inmueble?.Direccion ?? "Sin dirección")</td>
+                    <td>@($"{item.Propietario?.Nombre} {item.Propietario?.Apellido}".Trim())</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else if (Model != null)
+{
+    <div class="alert alert-warning mt-4">
+        No se encontraron inmuebles con el estado especificado.
+    </div>
+}

@@ -216,30 +216,7 @@ namespace inmobiliariaNortonNoe.Models
                 }
             }
             return contrato;
-        }
-        public Contrato ObtenerPorInmueble(int idInmueble)
-        { 
-            Contrato contrato = null;
-            using (var connection = new MySqlConnection(connectionString))
-            {
-                string sql = @"SELECT * FROM Contrato WHERE ID_Inmueble = @idInmueble AND EstadoLogico=1";
-                using (var command = new MySqlCommand(sql, connection))
-                {
-                    command.Parameters.AddWithValue("@idInmueble", idInmueble);
-                    connection.Open();
-                    using (var reader = command.ExecuteReader())
-                    {
-                        if (reader.Read())
-                        {
-                            contrato = MapearContrato(reader);
-                        }
-                    }
-                    connection.Close();
-                }
-            }
-            return contrato;
-        }
-                   
+        }    
 
         public IList<Contrato> ObtenerVigentes()
         {
@@ -355,5 +332,118 @@ namespace inmobiliariaNortonNoe.Models
                 }
             }
         }
+
+        public IList<ContratoViewModel> ObtenerPorFechas(DateTime fechaInicio, DateTime fechaFin)
+        {
+            IList<ContratoViewModel> res = new List<ContratoViewModel>();
+            using (var connection = new MySqlConnection(connectionString))
+            {
+                string sql = @"SELECT c.ID_Contrato, c.id_Inmueble, c.id_Inquilino, c.Fecha_Inicio, c.Fecha_Fin, c.Monto_Alquiler, c.Multa, c.Estado,
+                                    i.id AS InmuebleId, i.direccion,
+                                    inq.id AS InquilinoId, inq.nombre, inq.apellido, inq.dni
+                            FROM Contrato c
+                            JOIN Inmueble i ON c.ID_Inmueble = i.id
+                            JOIN Inquilino inq ON c.ID_Inquilino = inq.id
+                            WHERE c.EstadoLogico = 1 
+                                AND c.fecha_inicio >= @fechaInicio 
+                                AND c.fecha_fin <= @fechaFin 
+                                AND c.Estado = 'Vigente'";
+                
+                using (var command = new MySqlCommand(sql, connection))
+                {
+                    command.Parameters.AddWithValue("@fechaInicio", fechaInicio);
+                    command.Parameters.AddWithValue("@fechaFin", fechaFin);
+                    connection.Open();
+                    var reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        ContratoViewModel contratoView = new ContratoViewModel
+                        {
+                            Contrato = new Contrato
+                            {
+                            ID_Contrato = reader.GetInt32("ID_Contrato"),
+                            ID_Inmueble = reader.GetInt32("id_Inmueble"),
+                            ID_Inquilino = reader.GetInt32("id_Inquilino"),
+                            Fecha_Inicio = reader.GetDateTime("Fecha_Inicio"),
+                            Fecha_Fin = reader.GetDateTime("Fecha_Fin"),
+                            Monto_Alquiler = reader.GetDecimal("Monto_Alquiler"),
+                            Multa = reader.GetDecimal("Multa"),
+                            Estado = reader.GetString("Estado")
+                            },
+                            Inquilino = new Inquilino
+                            {
+                                Id = reader.GetInt32("InquilinoId"),
+                                Nombre = reader.GetString("nombre"),
+                                Apellido = reader.GetString("apellido"),
+                                Dni = reader.GetString("dni")
+                            },
+                            Inmueble = new Inmueble
+                            {
+                                Id = reader.GetInt32("InmuebleId"),
+                                Direccion = reader.GetString("direccion")
+                            }
+                        };
+                        res.Add(contratoView);
+                    }
+                    connection.Close();
+                }
+            }
+            return res;
+        }
+
+        public IList<ContratoViewModel> ObtenerPorInmueble(int idInmueble)
+        {
+            IList<ContratoViewModel> res = new List<ContratoViewModel>();
+            using (var connection = new MySqlConnection(connectionString))
+            {
+                string sql = @"SELECT c.ID_Contrato, c.id_Inmueble, c.id_Inquilino, c.Fecha_Inicio, c.Fecha_Fin, c.Monto_Alquiler, c.Multa, c.Estado,
+                                    i.id AS InmuebleId, i.direccion,
+                                    inq.id AS InquilinoId, inq.nombre, inq.apellido, inq.dni
+                            FROM Contrato c
+                            JOIN Inmueble i ON c.ID_Inmueble = i.id
+                            JOIN Inquilino inq ON c.ID_Inquilino = inq.id
+                            WHERE c.EstadoLogico = 1 
+                                AND c.ID_Inmueble = @idInmueble";
+                using (var command = new MySqlCommand(sql, connection))
+                {
+                    command.Parameters.AddWithValue("@idInmueble", idInmueble);
+                    connection.Open();
+                    var reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        ContratoViewModel contratoView = new ContratoViewModel
+                        {
+                            Contrato = new Contrato
+                            {
+                            ID_Contrato = reader.GetInt32("ID_Contrato"),
+                            ID_Inmueble = reader.GetInt32("id_Inmueble"),
+                            ID_Inquilino = reader.GetInt32("id_Inquilino"),
+                            Fecha_Inicio = reader.GetDateTime("Fecha_Inicio"),
+                            Fecha_Fin = reader.GetDateTime("Fecha_Fin"),
+                            Monto_Alquiler = reader.GetDecimal("Monto_Alquiler"),
+                            Multa = reader.GetDecimal("Multa"),
+                            Estado = reader.GetString("Estado")
+                            },
+                            Inquilino = new Inquilino
+                            {
+                                Id = reader.GetInt32("InquilinoId"),
+                                Nombre = reader.GetString("nombre"),
+                                Apellido = reader.GetString("apellido"),
+                                Dni = reader.GetString("dni")
+                            },
+                            Inmueble = new Inmueble
+                            {
+                                Id = reader.GetInt32("InmuebleId"),
+                                Direccion = reader.GetString("direccion")
+                            }
+                        };
+                        res.Add(contratoView);
+                    }
+                    connection.Close();
+                }
+            }
+            return res;
+        }
+	
     }
 }

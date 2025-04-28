@@ -29,7 +29,6 @@ namespace inmobiliariaNortonNoe.Models
                     command.Parameters.AddWithValue("@estado", p.Estado);
                     command.Parameters.AddWithValue("@idPropietario", p.Id_Propietario);
 
-                    // Portada opcional
                     command.Parameters.AddWithValue("@portada", string.IsNullOrEmpty(p.Portada) ? (object)DBNull.Value : p.Portada);
 
                     connection.Open();
@@ -110,6 +109,28 @@ namespace inmobiliariaNortonNoe.Models
             return res;
         }
 
+        public IList<Inmueble> ObtenerPorPropietario(int idPropietario)
+        {
+            IList<Inmueble> lista = new List<Inmueble>();
+            using (var connection = new MySqlConnection(connectionString))
+            {
+                string sql = "SELECT * FROM Inmueble WHERE ID_Propietario = @id_Propietario";
+                using (var command = new MySqlCommand(sql, connection))
+                {
+                    command.Parameters.AddWithValue("@id_Propietario", idPropietario);
+                    command.CommandType = CommandType.Text;
+                    connection.Open();
+                    var reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        lista.Add(MapearInmueble(reader));
+                    }
+                    connection.Close();
+                }
+            }
+            return lista;
+        }
+
         public IList<Inmueble> ObtenerTodos()
         {
             IList<Inmueble> res = new List<Inmueble>();
@@ -177,7 +198,7 @@ namespace inmobiliariaNortonNoe.Models
             return p;
         }
 
-    public IList<Inmueble> BuscarPorTipo(string tipo)
+        public IList<Inmueble> BuscarPorTipo(string tipo)
         {
             IList<Inmueble> lista = new List<Inmueble>();
             using (var connection = new MySqlConnection(connectionString))
@@ -226,7 +247,13 @@ namespace inmobiliariaNortonNoe.Models
             IList<Inmueble> lista = new List<Inmueble>();
             using (var connection = new MySqlConnection(connectionString))
             {
-                string sql = "SELECT * FROM Inmueble WHERE Estado = @estado";
+                string sql = @"
+                    SELECT 
+                        *
+                    FROM 
+                        Inmueble
+                    WHERE 
+                        Estado = @estado";
                 using (var command = new MySqlCommand(sql, connection))
                 {
                     command.Parameters.AddWithValue("@estado", estado);
