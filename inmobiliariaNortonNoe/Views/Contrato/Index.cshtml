@@ -27,7 +27,10 @@
                 <td>
                     <a class="btn btn-info" asp-action="Details" asp-route-id="@c.ID_Contrato">Ver Más</a>
                     <a class="btn btn-warning" asp-action="Edit" asp-route-id="@c.ID_Contrato">Editar</a>
-                    <a class="btn btn-danger" asp-action="Eliminar" asp-route-id="@c.ID_Contrato">Eliminar</a>
+                    @if (User.IsInRole("Administrador"))
+                    {
+                        <a class="btn btn-danger" asp-action="Eliminar" asp-route-id="@c.ID_Contrato">Eliminar</a>
+                    }
                 </td>
             </tr>
         }
