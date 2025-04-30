@@ -1,0 +1,20 @@
+@model inmobiliariaNortonNoe.Models.Contrato
+@{
+    ViewBag.Title = "Finalizar Contrato Anticipadamente";
+}
+
+<h2>Finalizar Contrato Anticipadamente</h2>
+
+<div class="alert alert-warning">
+    <p><strong>Advertencia:</strong> Está a punto de finalizar el contrato antes de la fecha prevista.</p>
+    <p><strong>Multa a pagar:</strong> @ViewBag.Multa.ToString("C")</p>
+</div>
+
+@using (Html.BeginForm("FinalizarAnticipadamentePost", "Contrato", FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
+    @Html.Hidden("id", Model.ID_Contrato)
+
+    <button type="submit" class="btn btn-danger">Confirmar Finalización</button>
+    @Html.ActionLink("Cancelar", "Index", null, new { @class = "btn btn-secondary" })
+}

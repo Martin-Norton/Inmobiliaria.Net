@@ -121,6 +121,21 @@ namespace inmobiliariaNortonNoe.Controllers
         {
             return View("Buscar", null);
         }
+        
+        [Route("[controller]/BuscarDisponiblesPorFechas")]
+        [Authorize(Roles = "Inmobiliaria, Administrador")]
+        public IActionResult BuscarDisponiblesPorFechas(DateTime fechaDesde, DateTime fechaHasta)
+        {
+            if (fechaDesde == DateTime.MinValue || fechaHasta == DateTime.MinValue)
+            {
+                return View("BuscarDisponiblesPorFechas", new List<Inmueble>());
+            }
+
+            var inmuebles = repositorio.ObtenerInmueblesDisponiblesPorFechas(fechaDesde, fechaHasta).ToList();
+
+            return View("BuscarDisponiblesPorFechas", inmuebles);
+        }
+
     //endregion Busquedas
 
         [Authorize(Roles = "Inmobiliaria, Administrador")]

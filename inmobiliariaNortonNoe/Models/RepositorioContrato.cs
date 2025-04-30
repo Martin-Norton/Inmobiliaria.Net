@@ -22,7 +22,7 @@ namespace inmobiliariaNortonNoe.Models
             {
                 string sql = @"INSERT INTO Contrato 
                     (ID_Inmueble, ID_Inquilino, Fecha_Inicio, Fecha_Fin, Monto_Alquiler, Multa, Estado, EstadoLogico, ID_UsuarioAlta) 
-                    VALUES (@idInmueble, @idInquilino, @fechaInicio, @fechaFin, @montoAlquiler, @multa, @estado, 1,@idUsuarioAlta);
+                    VALUES (@idInmueble, @idInquilino, @fechaInicio, @fechaFin, @montoAlquiler, @multa, @estado, 1, @idUsuarioAlta);
                     SELECT LAST_INSERT_ID();";
                 using (var command = new MySqlCommand(sql, connection))
                 {
@@ -35,7 +35,17 @@ namespace inmobiliariaNortonNoe.Models
                     command.Parameters.AddWithValue("@multa", contrato.Multa);
                     command.Parameters.AddWithValue("@estado", contrato.Estado);
                     command.Parameters.AddWithValue("@estadoLogico", 1);
-                    command.Parameters.AddWithValue("@idUsuarioAlta", ID_UsuarioAlta);                    
+                    command.Parameters.AddWithValue("@idUsuarioAlta", ID_UsuarioAlta);
+                    // Debug: imprimir consulta con valores
+                    string consultaDebug = $@"
+                    INSERT INTO Contrato 
+                    (ID_Inmueble, ID_Inquilino, Fecha_Inicio, Fecha_Fin, Monto_Alquiler, Multa, Estado, EstadoLogico, ID_UsuarioAlta) 
+                    VALUES ({contrato.ID_Inmueble}, {contrato.ID_Inquilino}, '{contrato.Fecha_Inicio:yyyy-MM-dd}', 
+                            '{contrato.Fecha_Fin:yyyy-MM-dd}', {contrato.Monto_Alquiler}, {contrato.Multa}, 
+                            '{contrato.Estado}', 1, {ID_UsuarioAlta});";
+
+                    Console.WriteLine("Consulta a ejecutar:");
+                    Console.WriteLine(consultaDebug);                    
                     connection.Open();
                     res = Convert.ToInt32(command.ExecuteScalar());
                     contrato.ID_Contrato = res;
@@ -89,6 +99,7 @@ namespace inmobiliariaNortonNoe.Models
                     command.Parameters.AddWithValue("@montoAlquiler", contrato.Monto_Alquiler);
                     command.Parameters.AddWithValue("@multa", contrato.Multa);
                     command.Parameters.AddWithValue("@estado", contrato.Estado);
+
                     
                     connection.Open();
                     res = command.ExecuteNonQuery();

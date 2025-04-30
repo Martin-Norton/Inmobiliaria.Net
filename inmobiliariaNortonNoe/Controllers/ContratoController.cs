@@ -14,13 +14,15 @@ namespace inmobiliariaNortonNoe.Controllers
         private readonly IRepositorioInquilino repoInquilino;
         private readonly IRepositorioContrato repositorio;
         private readonly IRepositorioUsuario repoUsuario;
+        private readonly IRepositorioPago repositorioPago;
 
-        public ContratoController(IRepositorioContrato repo, IRepositorioInmueble repoInmueble, IRepositorioInquilino repoInquilino, IRepositorioUsuario repoUsuario)
+        public ContratoController(IRepositorioContrato repo, IRepositorioInmueble repoInmueble, IRepositorioInquilino repoInquilino, IRepositorioUsuario repoUsuario, IRepositorioPago repositorioPago)
         {
             this.repositorio = repo;
             this.repoInmueble = repoInmueble;
             this.repoInquilino = repoInquilino;
             this.repoUsuario = repoUsuario;
+            this.repositorioPago = repositorioPago;
         }
 
         [Authorize(Roles = "Inmobiliaria, Administrador")]
@@ -67,6 +69,7 @@ namespace inmobiliariaNortonNoe.Controllers
             var lista = repositorio.ObtenerPorFechas(fechaInicio,fechaFin);
             return View(lista);
         }
+        
         [HttpGet]
         public IActionResult BuscarPorInmueble()
         {
@@ -248,5 +251,131 @@ namespace inmobiliariaNortonNoe.Controllers
             var res = repositorio.ObtenerPorInquilino(id);
             return Json(new { Datos = res });
         }
+
+    //zona renovar contrato
+        [Route("[controller]/Renovar/{id}")]
+        [HttpGet]
+        [Authorize(Roles = "Inmobiliaria, Administrador")]
+        public ActionResult Renovar(int id)
+        {
+            var contratoViejo = repositorio.ObtenerPorId(id);
+            if (contratoViejo == null)
+            {
+                TempData["Mensaje"] = "Contrato no encontrado.";
+                return RedirectToAction("Index");
+            }
+
+            var inmueble = repoInmueble.ObtenerPorId(contratoViejo.ID_Inmueble);
+            var inquilino = repoInquilino.ObtenerPorId(contratoViejo.ID_Inquilino);
+
+            if (inmueble == null || inquilino == null)
+            {
+                TempData["Mensaje"] = "El inmueble o el inquilino del contrato original no están disponibles.";
+                return RedirectToAction("Index");
+            }
+
+            var nuevoContrato = new Contrato
+            {
+                ID_Inmueble = contratoViejo.ID_Inmueble,
+                ID_Inquilino = contratoViejo.ID_Inquilino,
+                Fecha_Inicio = contratoViejo.Fecha_Fin.AddDays(1),
+                Fecha_Fin = contratoViejo.Fecha_Fin.AddDays(1).AddYears(1),
+                Monto_Alquiler = contratoViejo.Monto_Alquiler,
+                Multa = 0,
+                Estado = "Vigente",
+                EstadoLogico = 1
+            };
+
+            ViewBag.InmuebleDireccion = inmueble.Direccion;
+            ViewBag.InquilinoNombre = $"{inquilino.Nombre} {inquilino.Apellido}";
+
+            return View("Renovar", nuevoContrato);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Inmobiliaria, Administrador")]
+        public ActionResult Renovar(Contrato contrato)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    ModelState.AddModelError("", "Campos vacios o incorrectos");
+                    CargarViewBags(contrato);
+
+                    return View(contrato);
+                }
+
+                if (repositorio.ExisteContratoSuperpuesto(contrato.ID_Inmueble, contrato.Fecha_Inicio, contrato.Fecha_Fin))
+                {
+                    ModelState.AddModelError("", "Ya existe un contrato para este inmueble en las fechas seleccionadas.");
+                    CargarViewBags(contrato);
+
+                    return View(contrato);
+                }
+
+                var email = User.Identity.Name;
+                var usuario = repoUsuario.ObtenerPorEmail(email);
+
+                if (usuario == null)
+                    return RedirectToAction("Login", "Usuarios");
+
+                contrato.ID_UsuarioAlta = usuario.Id;
+
+                repositorio.Alta(contrato, usuario.Id);
+
+                TempData["Mensaje"] = "Contrato creado correctamente";
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", "Error al crear el contrato: " + ex.Message);
+                CargarViewBags(contrato);
+
+                return View(contrato);
+            }
+        }
+        private void CargarViewBags(Contrato contrato)
+        {
+            var inmueble = repoInmueble.ObtenerPorId(contrato.ID_Inmueble);
+            var inquilino = repoInquilino.ObtenerPorId(contrato.ID_Inquilino);
+
+            ViewBag.InmuebleDireccion = inmueble?.Direccion ?? "—";
+            ViewBag.InquilinoNombre = inquilino != null
+                ? $"{inquilino.Nombre} {inquilino.Apellido}"
+                : "—";
+        }
+    //fin zona renovar contrato
+    //zona multas
+        [Route("[controller]/FinalizarAnticipadamente/{id}")]
+        [Authorize(Roles = "Inmobiliaria, Administrador")]
+        public ActionResult FinalizarAnticipadamente(int id)
+        {
+            var contrato = repositorio.ObtenerPorId(id);
+            if (contrato == null) return null;
+
+            var multa = contrato.Monto_Alquiler * 1.5m;
+
+            ViewBag.Multa = multa;
+            return View(contrato);
+        }
+        [HttpPost]
+        public ActionResult FinalizarAnticipadamentePost(int id)
+        {
+            var email = User.Identity.Name;
+            var usuario = repoUsuario.ObtenerPorEmail(email);
+
+            var contrato = repositorio.ObtenerPorId(id);
+
+            if (contrato == null) return null;
+
+            contrato.Fecha_Fin = DateTime.Today;
+            contrato.Multa = contrato.Monto_Alquiler * 1.5m;
+            contrato.Estado = "Finalizado";
+            repositorio.Modificacion(contrato);
+            repositorio.Baja(id, usuario.Id);
+            return RedirectToAction("Index");
+        }
+    //fin zona multas
     }
 }

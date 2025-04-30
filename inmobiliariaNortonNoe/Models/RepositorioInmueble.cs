@@ -327,5 +327,50 @@ namespace inmobiliariaNortonNoe.Models
 
             };
         }
+
+        //zona busquedas
+       public IList<Inmueble> ObtenerInmueblesDisponiblesPorFechas(DateTime fechaInicio, DateTime fechaFin)
+        {
+            IList<Inmueble> res = new List<Inmueble>();
+            using (var connection = new MySqlConnection(connectionString))
+            {
+                string sql = @"
+                    SELECT i.id AS InmuebleId, i.direccion
+                    FROM Inmueble i
+                    WHERE i.Estado = 'Disponible'
+                    AND i.id NOT IN (
+                        SELECT c.ID_Inmueble
+                        FROM Contrato c
+                        WHERE c.EstadoLogico = 1
+                            AND c.Estado = 'Vigente'
+                            AND (
+                                (@fechaInicio BETWEEN c.Fecha_Inicio AND c.Fecha_Fin)
+                                OR (@fechaFin BETWEEN c.Fecha_Inicio AND c.Fecha_Fin)
+                                OR (c.Fecha_Inicio BETWEEN @fechaInicio AND @fechaFin)
+                                OR (c.Fecha_Fin BETWEEN @fechaInicio AND @fechaFin)
+                            )
+                    )";
+
+                using (var command = new MySqlCommand(sql, connection))
+                {
+                    command.Parameters.AddWithValue("@fechaInicio", fechaInicio);
+                    command.Parameters.AddWithValue("@fechaFin", fechaFin);
+                    connection.Open();
+                    var reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        Inmueble inmueble = new Inmueble
+                        {
+                            Id = reader.GetInt32("InmuebleId"),
+                            Direccion = reader.GetString("direccion")
+                        };
+                        res.Add(inmueble);
+                    }
+                    connection.Close();
+                }
+            }
+            return res;
+        }
+        //Fin zona busquedas
     }
 }
