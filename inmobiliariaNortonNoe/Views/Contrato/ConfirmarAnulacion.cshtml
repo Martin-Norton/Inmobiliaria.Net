@@ -1,0 +1,25 @@
+@model inmobiliariaNortonNoe.Models.Contrato
+
+@{
+    ViewBag.Title = "Confirmar Anulación del Contrato";
+    var fechaFinAnt = (string)ViewBag.FechaFinAnticipada;
+    var multa = (int)ViewBag.Multa;
+}
+
+<h2>Confirmar Anulación del Contrato</h2>
+
+<div class="alert alert-warning">
+    <p><strong>Advertencia:</strong> Está a punto de anular el contrato antes de la fecha original.</p>
+    <p><strong>Fecha elegida para anulación:</strong> @fechaFinAnt</p>
+    <p><strong>Multa a pagar:</strong> @multa.ToString("C")</p>
+</div>
+
+@using (Html.BeginForm("FinalizarAnticipadamentePost", "Contrato", FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="ID_Contrato" value="@Model.ID_Contrato" />
+    <input type="hidden" name="fechaFinAnticipada" value="@fechaFinAnt" />
+
+    <button type="submit" class="btn btn-danger">Confirmar Finalización</button>
+    @Html.ActionLink("Cancelar", "Index", null, new { @class = "btn btn-secondary" })
+}

@@ -8,11 +8,11 @@
     <input type="hidden" asp-for="ID_Contrato" />
     <div class="form-group">
         <label asp-for="ID_Inmueble"></label>
-        <input asp-for="ID_Inmueble" class="form-control" />
+        <input type="hidden" asp-for="ID_Inmueble" class="form-control" />
     </div>
     <div class="form-group">
         <label asp-for="ID_Inquilino"></label>
-        <input asp-for="ID_Inquilino" class="form-control" />
+        <input type="hidden" asp-for="ID_Inquilino" class="form-control" />
     </div>
     <div class="form-group">
         <label asp-for="Fecha_Inicio"></label>
@@ -28,11 +28,17 @@
     </div>
     <div class="form-group">
         <label asp-for="Multa"></label>
-        <input asp-for="Multa" class="form-control" />
+        <input type="hidden" asp-for="Multa" class="form-control" />
     </div>
     <div class="form-group">
         <label asp-for="Estado"></label>
-        <input asp-for="Estado" class="form-control" />
+        <select asp-for="Estado" class="form-control">
+            <option value="">-- Seleccionar Estado --</option>
+            <option value="Vigente">Vigente</option>
+            <option value="Terminado">Terminado</option>
+
+        </select>
+        <span asp-validation-for="Estado" class="text-danger"></span>
     </div>
     <button type="submit" class="btn btn-primary" class="bt">Guardar</button>
 </form>

@@ -36,6 +36,8 @@ namespace inmobiliariaNortonNoe.Models
 
         public int EstadoLogico { get; set; } = 1;
         public int ID_UsuarioAlta { get; set; }
-        public int? ID_UsuarioBaja { get; set; } 
+        public int? ID_UsuarioBaja { get; set; }
+        public int? ID_UsuarioAnulacion { get; set; }
+        public DateTime? Fecha_FinAnt { get; set; } = null;
     }
 }

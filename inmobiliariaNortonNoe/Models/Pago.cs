@@ -17,9 +17,16 @@ namespace inmobiliariaNortonNoe.Models
         [Display(Name = "Fecha de Pago")]
         public DateTime Fecha_Pago { get; set; }
 
+        [Required(ErrorMessage = "El periodo correspondiente es obligatorio")]
+        [DataType(DataType.Date)]
+        [Display(Name = "Periodo de Pago")]
+        public DateTime Periodo_Pago { get; set; }
+
         [Required(ErrorMessage = "El importe es obligatorio.")]
         [Range(1, double.MaxValue, ErrorMessage = "El importe debe ser mayor a 0.")]
         public decimal Monto { get; set; }
+
+        public int esMulta { get; set; } = 0;
 
         public int Estado { get; set; } = 1;
 

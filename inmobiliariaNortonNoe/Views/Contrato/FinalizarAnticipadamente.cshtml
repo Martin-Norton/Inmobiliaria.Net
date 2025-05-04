@@ -1,20 +1,43 @@
 @model inmobiliariaNortonNoe.Models.Contrato
+
 @{
     ViewBag.Title = "Finalizar Contrato Anticipadamente";
+    string fechaInicio = Model.Fecha_Inicio.ToString("yyyy-MM-dd");
 }
 
 <h2>Finalizar Contrato Anticipadamente</h2>
 
-<div class="alert alert-warning">
-    <p><strong>Advertencia:</strong> Está a punto de finalizar el contrato antes de la fecha prevista.</p>
-    <p><strong>Multa a pagar:</strong> @ViewBag.Multa.ToString("C")</p>
-</div>
+<p>Ingrese la fecha en la que desea hacer efectiva la finalización del contrato.</p>
 
-@using (Html.BeginForm("FinalizarAnticipadamentePost", "Contrato", FormMethod.Post))
+@using (Html.BeginForm("PrevisualizarAnulacion", "Contrato", FormMethod.Post, new { onsubmit = "return validarFecha();" }))
 {
     @Html.AntiForgeryToken()
-    @Html.Hidden("id", Model.ID_Contrato)
+    @Html.HiddenFor(m => m.ID_Contrato)
+    @Html.Hidden("fechaInicio", fechaInicio)
 
-    <button type="submit" class="btn btn-danger">Confirmar Finalización</button>
-    @Html.ActionLink("Cancelar", "Index", null, new { @class = "btn btn-secondary" })
+    <div class="form-group">
+        <label for="fechaFinAnticipada">Fecha de finalización anticipada:</label>
+        <input type="date" class="form-control" id="fechaFinAnticipada" name="fechaFinAnticipada" required />
+        <span class="text-danger" id="errorFecha" style="display:none;">La fecha debe ser posterior a la fecha de inicio del contrato (@fechaInicio).</span>
+    </div>
+
+    <button type="submit" class="btn btn-warning mt-3">Calcular Multa</button>
+    @Html.ActionLink("Cancelar", "Index", null, new { @class = "btn btn-secondary mt-3" })
+}
+
+@section Scripts {
+    <script>
+        function validarFecha() {
+            const fechaInicio = new Date('@fechaInicio');
+            const fechaIngresada = new Date(document.getElementById("fechaFinAnticipada").value);
+
+            if (fechaIngresada <= fechaInicio || isNaN(fechaIngresada)) {
+                document.getElementById("errorFecha").style.display = "block";
+                return false;
+            }
+
+            document.getElementById("errorFecha").style.display = "none";
+            return true;
+        }
+    </script>
 }

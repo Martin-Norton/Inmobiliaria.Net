@@ -35,17 +35,7 @@ namespace inmobiliariaNortonNoe.Models
                     command.Parameters.AddWithValue("@multa", contrato.Multa);
                     command.Parameters.AddWithValue("@estado", contrato.Estado);
                     command.Parameters.AddWithValue("@estadoLogico", 1);
-                    command.Parameters.AddWithValue("@idUsuarioAlta", ID_UsuarioAlta);
-                    // Debug: imprimir consulta con valores
-                    string consultaDebug = $@"
-                    INSERT INTO Contrato 
-                    (ID_Inmueble, ID_Inquilino, Fecha_Inicio, Fecha_Fin, Monto_Alquiler, Multa, Estado, EstadoLogico, ID_UsuarioAlta) 
-                    VALUES ({contrato.ID_Inmueble}, {contrato.ID_Inquilino}, '{contrato.Fecha_Inicio:yyyy-MM-dd}', 
-                            '{contrato.Fecha_Fin:yyyy-MM-dd}', {contrato.Monto_Alquiler}, {contrato.Multa}, 
-                            '{contrato.Estado}', 1, {ID_UsuarioAlta});";
-
-                    Console.WriteLine("Consulta a ejecutar:");
-                    Console.WriteLine(consultaDebug);                    
+                    command.Parameters.AddWithValue("@idUsuarioAlta", ID_UsuarioAlta);              
                     connection.Open();
                     res = Convert.ToInt32(command.ExecuteScalar());
                     contrato.ID_Contrato = res;
@@ -66,7 +56,7 @@ namespace inmobiliariaNortonNoe.Models
             using (var connection = new MySqlConnection(connectionString))
             {
                 string sql = @"UPDATE Contrato 
-                    SET  EstadoLogico=0, ID_UsuarioBaja=@idUsuarioBaja 
+                    SET  Estado='Anulado', EstadoLogico=0, ID_UsuarioBaja=@idUsuarioBaja 
                     WHERE ID_Contrato=@id";
                 using (var command = new MySqlCommand(sql, connection))
                 {
@@ -108,45 +98,43 @@ namespace inmobiliariaNortonNoe.Models
             }
             return res;
         }
-        //aca le agrego una S de mas para probar el nuevo obtenerTodos
-        public IList<Contrato> ObtenerTodoss()
+    //zona Fin Anticipado
+        public int AnularContrato(Contrato contrato, DateTime fecha_finAnticipada, int idUsuarioAnulacion, int multa)
         {
-            IList<Contrato> res = new List<Contrato>();
+            int res = -1;
             using (var connection = new MySqlConnection(connectionString))
             {
-                string sql = @"SELECT * FROM Contrato WHERE EstadoLogico=1";
+                string sql = @"UPDATE Contrato 
+                    SET ID_Inmueble=@idInmueble, ID_Inquilino=@idInquilino, Fecha_Inicio=@fechaInicio, 
+                        Fecha_Fin=@fechaFin, Monto_Alquiler=@montoAlquiler, Multa=@multa, Estado='Anulado', ID_UsuarioAnulacion=@idUsuarioAnulacion, Fecha_FinAnt=@fechaFinAnticipada
+                    WHERE ID_Contrato=@id";
                 using (var command = new MySqlCommand(sql, connection))
                 {
+                    command.Parameters.AddWithValue("@id", contrato.ID_Contrato);
+                    command.Parameters.AddWithValue("@idInmueble", contrato.ID_Inmueble);
+                    command.Parameters.AddWithValue("@idInquilino", contrato.ID_Inquilino);
+                    command.Parameters.AddWithValue("@fechaInicio", contrato.Fecha_Inicio);
+                    command.Parameters.AddWithValue("@fechaFin", contrato.Fecha_Fin);
+                    command.Parameters.AddWithValue("@montoAlquiler", contrato.Monto_Alquiler);
+                    command.Parameters.AddWithValue("@multa", multa);
+                    command.Parameters.AddWithValue("@idUsuarioAnulacion", idUsuarioAnulacion);
+                    command.Parameters.AddWithValue("@fechaFinAnticipada", fecha_finAnticipada);
+
                     connection.Open();
-                    var reader = command.ExecuteReader();
-                    while (reader.Read())
-                    {
-                        Contrato contrato = new Contrato
-                        {
-                            ID_Contrato = reader.GetInt32("ID_Contrato"),
-                            ID_Inmueble = reader.GetInt32("ID_Inmueble"),
-                            ID_Inquilino = reader.GetInt32("ID_Inquilino"),
-                            Fecha_Inicio = reader.GetDateTime("Fecha_Inicio"),
-                            Fecha_Fin = reader.GetDateTime("Fecha_Fin"),
-                            Monto_Alquiler = reader.GetDecimal("Monto_Alquiler"),
-                            Multa = reader.GetDecimal("Multa"),
-                            Estado = reader.GetString("Estado")
-                        };
-                        res.Add(contrato);
-                    }
+                    res = command.ExecuteNonQuery();
                     connection.Close();
                 }
             }
             return res;
         }
-        //
+    //Fin zona fin anticipado
         public IList<Contrato> ObtenerTodos()
         {
             IList<Contrato> res = new List<Contrato>();
             using (var connection = new MySqlConnection(connectionString))
             {
                 string sql = @"SELECT c.ID_Contrato, c.ID_Inmueble, c.ID_Inquilino, c.Fecha_Inicio, c.Fecha_Fin,
-                                    c.Monto_Alquiler, c.Multa, c.Estado,
+                                    c.Monto_Alquiler, c.Multa, c.Estado, c.Fecha_FinAnt,
                                     i.Nombre, i.Apellido,
                                     inm.direccion
                             FROM Contrato c
@@ -170,6 +158,7 @@ namespace inmobiliariaNortonNoe.Models
                             Monto_Alquiler = reader.GetDecimal("Monto_Alquiler"),
                             Multa = reader.GetDecimal("Multa"),
                             Estado = reader.GetString("Estado"),
+                            Fecha_FinAnt = reader.IsDBNull(reader.GetOrdinal("Fecha_FinAnt")) ? (DateTime?)null : reader.GetDateTime("Fecha_FinAnt"),
                             Inquilino = new Inquilino
                             {
                                 Nombre = reader.GetString("Nombre"),
@@ -194,7 +183,14 @@ namespace inmobiliariaNortonNoe.Models
             Contrato contrato = null;
             using (var connection = new MySqlConnection(connectionString))
             {
-                string sql = @"SELECT * FROM Contrato WHERE ID_Contrato=@id"; ;
+                string sql = @"SELECT c.ID_Contrato, c.ID_Inmueble, c.ID_Inquilino, c.Fecha_Inicio, c.Fecha_Fin,
+                                    c.Monto_Alquiler, c.Multa, c.Estado, c.ID_UsuarioAlta, c.ID_UsuarioBaja,c.Fecha_FinAnt,c.ID_UsuarioAnulacion,
+                                    i.Nombre, i.Apellido,
+                                    inm.Direccion
+                            FROM Contrato c
+                            JOIN Inquilino i ON c.ID_Inquilino = i.id
+                            JOIN Inmueble inm ON c.ID_Inmueble = inm.id
+                            WHERE c.ID_Contrato = @id";
                 using (var command = new MySqlCommand(sql, connection))
                 {
                     command.Parameters.AddWithValue("@id", id);
@@ -213,7 +209,18 @@ namespace inmobiliariaNortonNoe.Models
                             Multa = reader.GetDecimal("Multa"),
                             Estado = reader.GetString("Estado"),
                             ID_UsuarioAlta = reader.GetInt32("ID_UsuarioAlta"),
-                            ID_UsuarioBaja = reader.IsDBNull(reader.GetOrdinal("ID_UsuarioBaja")) ? (int?)null : reader.GetInt32("ID_UsuarioBaja")
+                            ID_UsuarioBaja = reader.IsDBNull(reader.GetOrdinal("ID_UsuarioBaja")) ? (int?)null : reader.GetInt32("ID_UsuarioBaja"),
+                            Fecha_FinAnt = reader.IsDBNull(reader.GetOrdinal("Fecha_FinAnt")) ? (DateTime?)null : reader.GetDateTime("Fecha_FinAnt"),
+                            ID_UsuarioAnulacion = reader.IsDBNull(reader.GetOrdinal("ID_UsuarioAnulacion")) ? (int?)null : reader.GetInt32("ID_UsuarioAnulacion"),
+                            Inquilino = new Inquilino
+                            {
+                                Nombre = reader.GetString("Nombre"),
+                                Apellido = reader.GetString("Apellido")
+                            },
+                            Inmueble = new Inmueble
+                            {
+                                Direccion = reader.GetString("Direccion")
+                            }
                         };
                     }
                     connection.Close();
@@ -221,13 +228,21 @@ namespace inmobiliariaNortonNoe.Models
             }
             return contrato;
         }
+
         //zona contratos de baja
         public IList<Contrato> ObtenerTodosBaja()
         {
             IList<Contrato> res = new List<Contrato>();
             using (var connection = new MySqlConnection(connectionString))
             {
-                string sql = @"SELECT * FROM Contrato WHERE EstadoLogico=0";
+                string sql = @"SELECT c.ID_Contrato, c.ID_Inmueble, c.ID_Inquilino, c.Fecha_Inicio, c.Fecha_Fin,
+                                    c.Monto_Alquiler, c.Multa, c.Estado, c.ID_UsuarioAlta, c.ID_UsuarioBaja, c.Fecha_FinAnt, c.ID_UsuarioAnulacion
+                                    i.Nombre, i.Apellido,
+                                    inm.Direccion
+                            FROM Contrato c
+                            JOIN Inquilino i ON c.ID_Inquilino = i.id
+                            JOIN Inmueble inm ON c.ID_Inmueble = inm.id
+                            WHERE c.EstadoLogico = 0";
                 using (var command = new MySqlCommand(sql, connection))
                 {
                     connection.Open();
@@ -245,7 +260,18 @@ namespace inmobiliariaNortonNoe.Models
                             Multa = reader.GetDecimal("Multa"),
                             Estado = reader.GetString("Estado"),
                             ID_UsuarioAlta = reader.GetInt32("ID_UsuarioAlta"),
-                            ID_UsuarioBaja = reader.GetInt32("ID_UsuarioBaja")
+                            ID_UsuarioBaja = reader.GetInt32("ID_UsuarioBaja"),
+                            Fecha_FinAnt = reader.IsDBNull(reader.GetOrdinal("Fecha_FinAnt")) ? (DateTime?)null : reader.GetDateTime("Fecha_FinAnt"),
+                            ID_UsuarioAnulacion = reader.IsDBNull(reader.GetOrdinal("ID_UsuarioAnulacion")) ? (int?)null : reader.GetInt32("ID_UsuarioAnulacion"),
+                            Inquilino = new Inquilino
+                            {
+                                Nombre = reader.GetString("Nombre"),
+                                Apellido = reader.GetString("Apellido")
+                            },
+                            Inmueble = new Inmueble
+                            {
+                                Direccion = reader.GetString("Direccion")
+                            }
                         };
                         res.Add(contrato);
                     }
@@ -254,45 +280,99 @@ namespace inmobiliariaNortonNoe.Models
             }
             return res;
         }
+
         //fin zona contratos de baja
         public Contrato ObtenerPorInquilino(int idInquilino)
         {
             Contrato contrato = null;
             using (var connection = new MySqlConnection(connectionString))
             {
-                string sql = @"SELECT * FROM Contrato WHERE ID_Inquilino=@idInquilino AND EstadoLogico=1";
+                string sql = @"SELECT c.ID_Contrato, c.ID_Inmueble, c.ID_Inquilino, c.Fecha_Inicio, c.Fecha_Fin,
+                                    c.Monto_Alquiler, c.Multa, c.Estado,c.Fecha_FinAnt,c.ID_UsuarioAnulacion,
+                                    i.Nombre, i.Apellido,
+                                    inm.Direccion
+                            FROM Contrato c
+                            JOIN Inquilino i ON c.ID_Inquilino = i.id
+                            JOIN Inmueble inm ON c.ID_Inmueble = inm.id
+                            WHERE c.ID_Inquilino = @idInquilino AND c.EstadoLogico = 1";
                 using (var command = new MySqlCommand(sql, connection))
                 {
                     command.Parameters.AddWithValue("@idInquilino", idInquilino);
                     connection.Open();
-                    using (var reader = command.ExecuteReader())
+                    var reader = command.ExecuteReader();
+                    if (reader.Read())
                     {
-                        if (reader.Read())
+                        contrato = new Contrato
                         {
-                            contrato = MapearContrato(reader);
-                        }
+                            ID_Contrato = reader.GetInt32("ID_Contrato"),
+                            ID_Inmueble = reader.GetInt32("ID_Inmueble"),
+                            ID_Inquilino = reader.GetInt32("ID_Inquilino"),
+                            Fecha_Inicio = reader.GetDateTime("Fecha_Inicio"),
+                            Fecha_Fin = reader.GetDateTime("Fecha_Fin"),
+                            Monto_Alquiler = reader.GetDecimal("Monto_Alquiler"),
+                            Multa = reader.GetDecimal("Multa"),
+                            Estado = reader.GetString("Estado"),
+                            Fecha_FinAnt = reader.IsDBNull(reader.GetOrdinal("Fecha_FinAnt")) ? (DateTime?)null : reader.GetDateTime("Fecha_FinAnt"),
+                            ID_UsuarioAnulacion = reader.IsDBNull(reader.GetOrdinal("ID_UsuarioAnulacion")) ? (int?)null : reader.GetInt32("ID_UsuarioAnulacion"),
+                            Inquilino = new Inquilino
+                            {
+                                Nombre = reader.GetString("Nombre"),
+                                Apellido = reader.GetString("Apellido")
+                            },
+                            Inmueble = new Inmueble
+                            {
+                                Direccion = reader.GetString("Direccion")
+                            }
+                        };
                     }
                     connection.Close();
                 }
             }
             return contrato;
-        }    
+        }
+
 
         public IList<Contrato> ObtenerVigentes()
         {
             List<Contrato> contratos = new List<Contrato>();
             using (var connection = new MySqlConnection(connectionString))
             {
-                string sql = @"SELECT * FROM Contrato WHERE Estado = 'Vigente'  AND EstadoLogico=1";
+                string sql = @"SELECT c.ID_Contrato, c.ID_Inmueble, c.ID_Inquilino, c.Fecha_Inicio, c.Fecha_Fin,
+                                    c.Monto_Alquiler, c.Multa, c.Estado,c.Fecha_FinAnt,c.ID_UsuarioAnulacion,
+                                    i.Nombre, i.Apellido,
+                                    inm.Direccion
+                            FROM Contrato c
+                            JOIN Inquilino i ON c.ID_Inquilino = i.id
+                            JOIN Inmueble inm ON c.ID_Inmueble = inm.id
+                            WHERE c.Estado = 'Vigente' AND c.EstadoLogico = 1";
                 using (var command = new MySqlCommand(sql, connection))
                 {
                     connection.Open();
-                    using (var reader = command.ExecuteReader())
+                    var reader = command.ExecuteReader();
+                    while (reader.Read())
                     {
-                        while (reader.Read())
+                        contratos.Add(new Contrato
                         {
-                            contratos.Add(MapearContrato(reader));
-                        }
+                            ID_Contrato = reader.GetInt32("ID_Contrato"),
+                            ID_Inmueble = reader.GetInt32("ID_Inmueble"),
+                            ID_Inquilino = reader.GetInt32("ID_Inquilino"),
+                            Fecha_Inicio = reader.GetDateTime("Fecha_Inicio"),
+                            Fecha_Fin = reader.GetDateTime("Fecha_Fin"),
+                            Monto_Alquiler = reader.GetDecimal("Monto_Alquiler"),
+                            Multa = reader.GetDecimal("Multa"),
+                            Estado = reader.GetString("Estado"),
+                            Fecha_FinAnt = reader.IsDBNull(reader.GetOrdinal("Fecha_FinAnt")) ? (DateTime?)null : reader.GetDateTime("Fecha_FinAnt"),
+                            ID_UsuarioAnulacion = reader.IsDBNull(reader.GetOrdinal("ID_UsuarioAnulacion")) ? (int?)null : reader.GetInt32("ID_UsuarioAnulacion"),
+                            Inquilino = new Inquilino
+                            {
+                                Nombre = reader.GetString("Nombre"),
+                                Apellido = reader.GetString("Apellido")
+                            },
+                            Inmueble = new Inmueble
+                            {
+                                Direccion = reader.GetString("Direccion")
+                            }
+                        });
                     }
                     connection.Close();
                 }
@@ -300,29 +380,58 @@ namespace inmobiliariaNortonNoe.Models
             return contratos;
         }
 
+
         public IList<Contrato> ObtenerLista(int paginaNro, int tamPagina)
         {
             List<Contrato> contratos = new List<Contrato>();
             using (var connection = new MySqlConnection(connectionString))
             {
-                string sql = @"SELECT * FROM Contrato LIMIT @tamPagina OFFSET @offset";
+                string sql = @"SELECT c.ID_Contrato, c.ID_Inmueble, c.ID_Inquilino, c.Fecha_Inicio, c.Fecha_Fin,
+                                    c.Monto_Alquiler, c.Multa, c.Estado,c.Fecha_FinAnt,c.ID_UsuarioAnulacion,
+                                    i.Nombre, i.Apellido,
+                                    inm.Direccion
+                            FROM Contrato c
+                            JOIN Inquilino i ON c.ID_Inquilino = i.id
+                            JOIN Inmueble inm ON c.ID_Inmueble = inm.id
+                            WHERE c.EstadoLogico = 1
+                            LIMIT @tamPagina OFFSET @offset";
                 using (var command = new MySqlCommand(sql, connection))
                 {
                     command.Parameters.AddWithValue("@tamPagina", tamPagina);
                     command.Parameters.AddWithValue("@offset", (paginaNro - 1) * tamPagina);
                     connection.Open();
-                    using (var reader = command.ExecuteReader())
+                    var reader = command.ExecuteReader();
+                    while (reader.Read())
                     {
-                        while (reader.Read())
+                        contratos.Add(new Contrato
                         {
-                            contratos.Add(MapearContrato(reader));
-                        }
+                            ID_Contrato = reader.GetInt32("ID_Contrato"),
+                            ID_Inmueble = reader.GetInt32("ID_Inmueble"),
+                            ID_Inquilino = reader.GetInt32("ID_Inquilino"),
+                            Fecha_Inicio = reader.GetDateTime("Fecha_Inicio"),
+                            Fecha_Fin = reader.GetDateTime("Fecha_Fin"),
+                            Monto_Alquiler = reader.GetDecimal("Monto_Alquiler"),
+                            Multa = reader.GetDecimal("Multa"),
+                            Estado = reader.GetString("Estado"),
+                            Fecha_FinAnt = reader.IsDBNull(reader.GetOrdinal("Fecha_FinAnt")) ? (DateTime?)null : reader.GetDateTime("Fecha_FinAnt"),
+                            ID_UsuarioAnulacion = reader.IsDBNull(reader.GetOrdinal("ID_UsuarioAnulacion")) ? (int?)null : reader.GetInt32("ID_UsuarioAnulacion"),
+                            Inquilino = new Inquilino
+                            {
+                                Nombre = reader.GetString("Nombre"),
+                                Apellido = reader.GetString("Apellido")
+                            },
+                            Inmueble = new Inmueble
+                            {
+                                Direccion = reader.GetString("Direccion")
+                            }
+                        });
                     }
                     connection.Close();
                 }
             }
             return contratos;
         }
+
 
         public int ObtenerCantidad()
         {
@@ -399,6 +508,7 @@ namespace inmobiliariaNortonNoe.Models
             using (var connection = new MySqlConnection(connectionString))
             {
                 string sql = @"SELECT c.ID_Contrato, c.id_Inmueble, c.id_Inquilino, c.Fecha_Inicio, c.Fecha_Fin, c.Monto_Alquiler, c.Multa, c.Estado,
+                                    c.Fecha_FinAnt,c.ID_UsuarioAnulacion,
                                     i.id AS InmuebleId, i.direccion,
                                     inq.id AS InquilinoId, inq.nombre, inq.apellido, inq.dni
                             FROM Contrato c
@@ -421,14 +531,16 @@ namespace inmobiliariaNortonNoe.Models
                         {
                             Contrato = new Contrato
                             {
-                            ID_Contrato = reader.GetInt32("ID_Contrato"),
-                            ID_Inmueble = reader.GetInt32("id_Inmueble"),
-                            ID_Inquilino = reader.GetInt32("id_Inquilino"),
-                            Fecha_Inicio = reader.GetDateTime("Fecha_Inicio"),
-                            Fecha_Fin = reader.GetDateTime("Fecha_Fin"),
-                            Monto_Alquiler = reader.GetDecimal("Monto_Alquiler"),
-                            Multa = reader.GetDecimal("Multa"),
-                            Estado = reader.GetString("Estado")
+                                ID_Contrato = reader.GetInt32("ID_Contrato"),
+                                ID_Inmueble = reader.GetInt32("id_Inmueble"),
+                                ID_Inquilino = reader.GetInt32("id_Inquilino"),
+                                Fecha_Inicio = reader.GetDateTime("Fecha_Inicio"),
+                                Fecha_Fin = reader.GetDateTime("Fecha_Fin"),
+                                Monto_Alquiler = reader.GetDecimal("Monto_Alquiler"),
+                                Multa = reader.GetDecimal("Multa"),
+                                Estado = reader.GetString("Estado"),
+                                Fecha_FinAnt = reader.IsDBNull(reader.GetOrdinal("Fecha_FinAnt")) ? (DateTime?)null : reader.GetDateTime("Fecha_FinAnt"),
+                                ID_UsuarioAnulacion = reader.IsDBNull(reader.GetOrdinal("ID_UsuarioAnulacion")) ? (int?)null : reader.GetInt32("ID_UsuarioAnulacion")
                             },
                             Inquilino = new Inquilino
                             {
@@ -457,6 +569,7 @@ namespace inmobiliariaNortonNoe.Models
             using (var connection = new MySqlConnection(connectionString))
             {
                 string sql = @"SELECT c.ID_Contrato, c.id_Inmueble, c.id_Inquilino, c.Fecha_Inicio, c.Fecha_Fin, c.Monto_Alquiler, c.Multa, c.Estado,
+                                    c.Fecha_FinAnt,c.ID_UsuarioAnulacion,
                                     i.id AS InmuebleId, i.direccion,
                                     inq.id AS InquilinoId, inq.nombre, inq.apellido, inq.dni
                             FROM Contrato c
@@ -475,14 +588,16 @@ namespace inmobiliariaNortonNoe.Models
                         {
                             Contrato = new Contrato
                             {
-                            ID_Contrato = reader.GetInt32("ID_Contrato"),
-                            ID_Inmueble = reader.GetInt32("id_Inmueble"),
-                            ID_Inquilino = reader.GetInt32("id_Inquilino"),
-                            Fecha_Inicio = reader.GetDateTime("Fecha_Inicio"),
-                            Fecha_Fin = reader.GetDateTime("Fecha_Fin"),
-                            Monto_Alquiler = reader.GetDecimal("Monto_Alquiler"),
-                            Multa = reader.GetDecimal("Multa"),
-                            Estado = reader.GetString("Estado")
+                                ID_Contrato = reader.GetInt32("ID_Contrato"),
+                                ID_Inmueble = reader.GetInt32("id_Inmueble"),
+                                ID_Inquilino = reader.GetInt32("id_Inquilino"),
+                                Fecha_Inicio = reader.GetDateTime("Fecha_Inicio"),
+                                Fecha_Fin = reader.GetDateTime("Fecha_Fin"),
+                                Monto_Alquiler = reader.GetDecimal("Monto_Alquiler"),
+                                Multa = reader.GetDecimal("Multa"),
+                                Estado = reader.GetString("Estado"),
+                                Fecha_FinAnt = reader.IsDBNull(reader.GetOrdinal("Fecha_FinAnt")) ? (DateTime?)null : reader.GetDateTime("Fecha_FinAnt"),
+                                ID_UsuarioAnulacion = reader.IsDBNull(reader.GetOrdinal("ID_UsuarioAnulacion")) ? (int?)null : reader.GetInt32("ID_UsuarioAnulacion")
                             },
                             Inquilino = new Inquilino
                             {

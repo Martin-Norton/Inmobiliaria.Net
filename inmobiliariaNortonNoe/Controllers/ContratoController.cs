@@ -352,30 +352,61 @@ namespace inmobiliariaNortonNoe.Controllers
         public ActionResult FinalizarAnticipadamente(int id)
         {
             var contrato = repositorio.ObtenerPorId(id);
-            if (contrato == null) return null;
-
-            var multa = contrato.Monto_Alquiler * 1.5m;
-
-            ViewBag.Multa = multa;
+            if (contrato == null) return NotFound();
             return View(contrato);
         }
+
         [HttpPost]
-        public ActionResult FinalizarAnticipadamentePost(int id)
+        [ValidateAntiForgeryToken]
+        public ActionResult FinalizarAnticipadamentePost(int ID_Contrato, DateTime fechaFinAnticipada)
         {
             var email = User.Identity.Name;
             var usuario = repoUsuario.ObtenerPorEmail(email);
+            var contrato = repositorio.ObtenerPorId(ID_Contrato);
+            if (contrato == null) return NotFound();
 
-            var contrato = repositorio.ObtenerPorId(id);
+            if (fechaFinAnticipada <= contrato.Fecha_Inicio)
+            {
+                ModelState.AddModelError("", "La fecha de finalización anticipada debe ser posterior a la fecha de inicio del contrato.");
+                return View("FinalizarAnticipadamente", contrato);
+            }
 
-            if (contrato == null) return null;
+            var duracionTotal = (contrato.Fecha_Fin - contrato.Fecha_Inicio).TotalDays;
+            var tiempoCumplido = (fechaFinAnticipada - contrato.Fecha_Inicio).TotalDays;
 
-            contrato.Fecha_Fin = DateTime.Today;
-            contrato.Multa = contrato.Monto_Alquiler * 1.5m;
-            contrato.Estado = "Finalizado";
-            repositorio.Modificacion(contrato);
-            repositorio.Baja(id, usuario.Id);
+            int mesesMulta = tiempoCumplido < duracionTotal / 2 ? 2 : 1;
+            int multa = (int)(contrato.Monto_Alquiler * mesesMulta);
+
+            repositorio.AnularContrato(contrato, fechaFinAnticipada, usuario.Id, multa);
+
+            TempData["Mensaje"] = $"Contrato anulado exitosamente. Multa aplicada: ${multa}.";
             return RedirectToAction("Index");
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult PrevisualizarAnulacion(int ID_Contrato, DateTime fechaFinAnticipada)
+        {
+            var contrato = repositorio.ObtenerPorId(ID_Contrato);
+            if (contrato == null) return NotFound();
+
+            if (fechaFinAnticipada <= contrato.Fecha_Inicio)
+            {
+                ModelState.AddModelError("", "La fecha de finalización anticipada debe ser posterior a la fecha de inicio del contrato.");
+                return View("FinalizarAnticipadamente", contrato);
+            }
+
+            var duracionTotal = (contrato.Fecha_Fin - contrato.Fecha_Inicio).TotalDays;
+            var tiempoCumplido = (fechaFinAnticipada - contrato.Fecha_Inicio).TotalDays;
+
+            int mesesMulta = tiempoCumplido < duracionTotal / 2 ? 2 : 1;
+            int multa = (int)(contrato.Monto_Alquiler * mesesMulta);
+
+            ViewBag.FechaFinAnticipada = fechaFinAnticipada.ToString("yyyy-MM-dd");
+            ViewBag.Multa = multa;
+            return View("ConfirmarAnulacion", contrato);
+        }
+
     //fin zona multas
     }
 }

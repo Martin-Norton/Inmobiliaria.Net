@@ -9,6 +9,7 @@ namespace inmobiliariaNortonNoe.Models
     {
         int Alta(Contrato entidad, int idUsuario);
         int Baja(int id, int idUsuario);
+        int AnularContrato(Contrato contrato, DateTime fecha_finAnticipada, int idUsuarioAnulacion, int multa);
         int Baja(int id);
         IList<ContratoViewModel> ObtenerPorFechas(DateTime fechaInicio, DateTime fechaFin);
         IList<Contrato> ObtenerTodosBaja();

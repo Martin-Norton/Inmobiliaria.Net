@@ -12,6 +12,7 @@
             <th>Fecha Inicio</th>
             <th>Fecha Fin</th>
             <th>Monto</th>
+            <th>Estado</th>
             <th>Acciones</th>
         </tr>
     </thead>
@@ -22,8 +23,15 @@
                 <td>@c.Inmueble.Direccion</td>
                 <td>@c.Inquilino.Nombre @c.Inquilino.Apellido</td>
                 <td>@c.Fecha_Inicio.ToShortDateString()</td>
-                <td>@c.Fecha_Fin.ToShortDateString()</td>
+                @if (c.Estado == "Anulado")
+                {
+                    <td>Fecha Fin Anticipada</td> 
+                }else
+                {
+                    <td>@c.Fecha_Fin.ToShortDateString()</td>
+                }
                 <td>@c.Monto_Alquiler</td>
+                <td>@c.Estado</td>
                 <td>
                     <a class="btn btn-info" asp-action="Details" asp-route-id="@c.ID_Contrato">Ver Más</a>
                     <a class="btn btn-warning" asp-action="Edit" asp-route-id="@c.ID_Contrato">Editar</a>
