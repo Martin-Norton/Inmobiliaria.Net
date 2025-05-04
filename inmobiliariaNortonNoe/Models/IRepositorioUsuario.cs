@@ -5,5 +5,6 @@ namespace inmobiliariaNortonNoe.Models
 	public interface IRepositorioUsuario : IRepositorio<Usuario>
 	{
 		Usuario? ObtenerPorEmail(string email); 
+		int ModificacionConClave(Usuario u);
 	}
 }

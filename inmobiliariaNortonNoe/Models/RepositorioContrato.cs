@@ -108,8 +108,8 @@ namespace inmobiliariaNortonNoe.Models
             }
             return res;
         }
-
-        public IList<Contrato> ObtenerTodos()
+        //aca le agrego una S de mas para probar el nuevo obtenerTodos
+        public IList<Contrato> ObtenerTodoss()
         {
             IList<Contrato> res = new List<Contrato>();
             using (var connection = new MySqlConnection(connectionString))
@@ -139,6 +139,55 @@ namespace inmobiliariaNortonNoe.Models
             }
             return res;
         }
+        //
+        public IList<Contrato> ObtenerTodos()
+        {
+            IList<Contrato> res = new List<Contrato>();
+            using (var connection = new MySqlConnection(connectionString))
+            {
+                string sql = @"SELECT c.ID_Contrato, c.ID_Inmueble, c.ID_Inquilino, c.Fecha_Inicio, c.Fecha_Fin,
+                                    c.Monto_Alquiler, c.Multa, c.Estado,
+                                    i.Nombre, i.Apellido,
+                                    inm.direccion
+                            FROM Contrato c
+                            JOIN Inquilino i ON c.ID_Inquilino = i.id
+                            JOIN Inmueble inm ON c.ID_Inmueble = inm.id
+                            WHERE c.EstadoLogico = 1";
+
+                using (var command = new MySqlCommand(sql, connection))
+                {
+                    connection.Open();
+                    var reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        Contrato contrato = new Contrato
+                        {
+                            ID_Contrato = reader.GetInt32("ID_Contrato"),
+                            ID_Inmueble = reader.GetInt32("ID_Inmueble"),
+                            ID_Inquilino = reader.GetInt32("ID_Inquilino"),
+                            Fecha_Inicio = reader.GetDateTime("Fecha_Inicio"),
+                            Fecha_Fin = reader.GetDateTime("Fecha_Fin"),
+                            Monto_Alquiler = reader.GetDecimal("Monto_Alquiler"),
+                            Multa = reader.GetDecimal("Multa"),
+                            Estado = reader.GetString("Estado"),
+                            Inquilino = new Inquilino
+                            {
+                                Nombre = reader.GetString("Nombre"),
+                                Apellido = reader.GetString("Apellido")
+                            },
+                            Inmueble = new Inmueble
+                            {
+                                Direccion = reader.GetString("Direccion")
+                            }
+                        };
+                        res.Add(contrato);
+                    }
+                    connection.Close();
+                }
+            }
+            return res;
+        }
+
 
         public Contrato ObtenerPorId(int id)
         {

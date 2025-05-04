@@ -79,6 +79,32 @@ namespace inmobiliariaNortonNoe.Models
 			return res;
 		}
 
+		public int ModificacionConClave(Usuario u)
+		{
+			int res = -1;
+			using (var connection = new MySqlConnection(connectionString))
+			{
+				string sql = @"UPDATE Usuarios SET
+							Nombre=@nombre, Apellido=@apellido, Email=@email, Avatar=@avatar, Rol=@rol, Clave=@clave
+							WHERE Id = @id";
+
+				using (var command = new MySqlCommand(sql, connection))
+				{
+					command.Parameters.AddWithValue("@nombre", u.Nombre);
+					command.Parameters.AddWithValue("@apellido", u.Apellido);
+					command.Parameters.AddWithValue("@email", u.Email);
+                    command.Parameters.AddWithValue("@avatar", u.Avatar == null ? DBNull.Value : u.Avatar);
+                    command.Parameters.AddWithValue("@rol", u.Rol);
+					command.Parameters.AddWithValue("@clave", u.Clave);
+					command.Parameters.AddWithValue("@id", u.Id);
+					connection.Open();
+					res = command.ExecuteNonQuery();
+					connection.Close();
+				}
+			}
+			return res;
+		}
+
 
 		public IList<Usuario> ObtenerTodos()
 		{

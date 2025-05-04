@@ -174,6 +174,9 @@ namespace inmobiliariaNortonNoe.Controllers
                     usuarioActual.Nombre = u.Nombre;
                     usuarioActual.Apellido = u.Apellido;
                     usuarioActual.Email = u.Email; 
+					if (!User.IsInRole(nameof(enRoles.Administrador))) {
+						u.Rol = usuarioActual.Rol;
+					}
 					usuarioActual.Rol = u.Rol;
 					if (u.AvatarFile != null && u.Id > 0)
 					{
@@ -194,7 +197,13 @@ namespace inmobiliariaNortonNoe.Controllers
 						usuarioActual.Avatar = u.Avatar;
 	
 					}	
-
+					if (Request.Form["EliminarAvatar"] == "on" && !string.IsNullOrEmpty(usuarioActual.Avatar)) {
+						string avatarPath = Path.Combine(environment.WebRootPath, usuarioActual.Avatar.TrimStart('/'));
+						if (System.IO.File.Exists(avatarPath)) {
+							System.IO.File.Delete(avatarPath);
+						}
+						usuarioActual.Avatar = null;
+					}
                     repositorio.Modificacion(usuarioActual);
                     TempData["Mensaje"] = "Perfil actualizado correctamente.";
                     var updatedUser = repositorio.ObtenerPorId(usuarioActual.Id);
@@ -373,5 +382,61 @@ namespace inmobiliariaNortonNoe.Controllers
                 default: return "application/octet-stream";
             }
         }
+	// zona modificar clave
+	    [Authorize]
+		public IActionResult CambiarClave()
+		{
+			ViewData["Title"] = "Cambiar Contraseña";
+			return View();
+		}
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		[Authorize]
+		public IActionResult CambiarClave(string ClaveActual, string NuevaClave, string ConfirmarClave)
+		{
+			var usuario = repositorio.ObtenerPorEmail(User.Identity.Name);
+			if (usuario == null) return Challenge();
+
+			string salt = configuration["Salt"];
+			byte[] saltBytes = System.Text.Encoding.ASCII.GetBytes(salt);
+
+			string hashActual = Convert.ToBase64String(KeyDerivation.Pbkdf2(
+				password: ClaveActual,
+				salt: saltBytes,
+				prf: KeyDerivationPrf.HMACSHA1,
+				iterationCount: 10000,
+				numBytesRequested: 256 / 8));
+
+			if (usuario.Clave != hashActual)
+			{
+				ModelState.AddModelError("", "La contraseña actual no es correcta.");
+				return View();
+			}
+
+			if (string.IsNullOrEmpty(NuevaClave) || NuevaClave.Length < 6)
+			{
+				ModelState.AddModelError("", "La nueva contraseña debe tener al menos 6 caracteres.");
+				return View();
+			}
+
+			if (NuevaClave != ConfirmarClave)
+			{
+				ModelState.AddModelError("", "La confirmación de la contraseña no coincide.");
+				return View();
+			}
+
+			string nuevoHash = Convert.ToBase64String(KeyDerivation.Pbkdf2(
+				password: NuevaClave,
+				salt: saltBytes,
+				prf: KeyDerivationPrf.HMACSHA1,
+				iterationCount: 10000,
+				numBytesRequested: 256 / 8));
+
+			usuario.Clave = nuevoHash;
+			repositorio.ModificacionConClave(usuario);
+
+			TempData["Mensaje"] = "Contraseña actualizada correctamente.";
+			return RedirectToAction("Perfil");
+		}
 	}
 }

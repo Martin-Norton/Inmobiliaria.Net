@@ -46,6 +46,14 @@
                     <td>@inmueble.Uso</td>
                     <td>@inmueble.Estado</td>
                     <td>@inmueble.Precio.ToString("C")</td>
+                    <td>
+                        <a class="btn btn-info" asp-action="Details" asp-route-id="@inmueble.Id">Ver Más</a>
+                        <a class="btn btn-warning" asp-action="Edit" asp-route-id="@inmueble.Id">Editar</a>
+                        @if (User.IsInRole("Administrador"))
+                        {
+                            <a class="btn btn-danger" asp-action="Eliminar" asp-route-id="@inmueble.Id">Eliminar</a>
+                        }
+                    </td>
                 </tr>
             }
         </tbody>

@@ -19,8 +19,8 @@
         @foreach (var c in Model)
         {
             <tr>
-                <td>@c.ID_Inmueble</td>
-                <td>@c.ID_Inquilino</td>
+                <td>@c.Inmueble.Direccion</td>
+                <td>@c.Inquilino.Nombre @c.Inquilino.Apellido</td>
                 <td>@c.Fecha_Inicio.ToShortDateString()</td>
                 <td>@c.Fecha_Fin.ToShortDateString()</td>
                 <td>@c.Monto_Alquiler</td>

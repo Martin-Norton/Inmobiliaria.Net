@@ -58,6 +58,15 @@
                 <input asp-for="AvatarFile" class="form-control" type="file" accept="image/*"/>
                 <span asp-validation-for="AvatarFile" class="text-danger"></span>
             </div>
+            @if (!string.IsNullOrEmpty(Model.Avatar)) {
+                <div class="mb-2">
+                    <img src="@Model.Avatar" alt="Avatar Actual" width="80" class="img-thumbnail d-block" />
+                    <div class="form-check">
+                        <input type="checkbox" name="EliminarAvatar" class="form-check-input" id="eliminarAvatar" />
+                        <label class="form-check-label" for="eliminarAvatar">Eliminar avatar actual</label>
+                    </div>
+                </div>
+            }
             <div class="form-group mt-3">
                 <input type="submit" value="Guardar Cambios" class="btn btn-primary" /> |
                 @if (isAdminEditing) {
@@ -66,6 +75,7 @@
                     <a asp-controller="Home" asp-action="Index" class="btn btn-secondary">Cancelar</a>
                 }
             </div>
+            <a asp-action="CambiarClave" class="btn btn-secondary">Cambiar Contraseña</a>
         </form>
 
 @section Scripts {

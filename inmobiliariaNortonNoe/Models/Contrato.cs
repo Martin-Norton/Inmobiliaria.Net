@@ -10,10 +10,12 @@ namespace inmobiliariaNortonNoe.Models
 
         [Required(ErrorMessage = "El inmueble es obligatorio.")]
         public int ID_Inmueble { get; set; }
+        public Inmueble Inmueble { get; set; }
 
         [Required(ErrorMessage = "El inquilino es obligatorio.")]
         public int ID_Inquilino { get; set; }
-
+        public Inquilino Inquilino { get; set; }
+        
         [Required(ErrorMessage = "La fecha de inicio es obligatoria.")]
         [DataType(DataType.Date)]
         public DateTime Fecha_Inicio { get; set; }
