@@ -28,6 +28,8 @@
     {
         <a class="btn btn-danger" asp-action="FinalizarAnticipadamente" asp-route-id="@Model.ID_Contrato">Anular Contrato Anticipadamente</a>
     }
+    <a class="btn btn-info" asp-controller="Pago" asp-action="PagosPagadosPorContrato" asp-route-idContrato="@Model.ID_Contrato">Ir a Pagos Abonados</a>
+    <a class="btn btn-info" asp-controller="Pago" asp-action="PagosImpagosPorContrato" asp-route-idContrato="@Model.ID_Contrato">Ir a Pagos No Abonados</a>
 </div>
 
 @if (User.IsInRole("Administrador"))

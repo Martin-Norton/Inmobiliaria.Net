@@ -172,9 +172,10 @@ namespace inmobiliariaNortonNoe.Models
 			return res;
 		}
 
-		virtual public Inquilino ObtenerPorId(int id)
+		public Inquilino ObtenerPorId(int id)
 		{
-			Inquilino? p = null;
+			Console.WriteLine($"Obteniendo inquilino con ID: {id}");
+			Inquilino ? p= null;
 			using (var connection = new MySqlConnection(connectionString))
 			{
 				string sql = @"SELECT 

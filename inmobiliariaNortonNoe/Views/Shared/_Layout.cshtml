@@ -36,9 +36,6 @@
                              <li class="nav-item">
                                 <a class="nav-link text-dark" asp-controller="Contrato" asp-action="Index">Contratos</a>
                             </li>
-                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Pago" asp-action="Index">Pagos</a>
-                            </li>
                             @if (User.IsInRole(nameof(enRoles.Administrador)))
                             {
                                 <li class="nav-item">

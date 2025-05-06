@@ -471,7 +471,7 @@ namespace inmobiliariaNortonNoe.Models
             {
                 string sql = @"SELECT COUNT(*) FROM Contrato 
                             WHERE ID_Inmueble = @idInmueble
-                            AND ((@fechaInicio <= Fecha_Fin AND @fechaFin >= Fecha_Inicio)) AND EstadoLogico=1";
+                            AND ((@fechaInicio <= Fecha_Fin AND @fechaFin >= Fecha_Inicio)) AND EstadoLogico=1 AND Estado = 'Vigente'";
                 using (var command = new MySqlCommand(sql, connection))
                 {
                     command.Parameters.AddWithValue("@idInmueble", idInmueble);
@@ -489,7 +489,7 @@ namespace inmobiliariaNortonNoe.Models
             {
                 string sql = @"SELECT COUNT(*) FROM Contrato 
                             WHERE ID_Inmueble = @idInmueble
-                            AND ((@fechaInicio <= Fecha_Fin AND @fechaFin >= Fecha_Inicio)) AND ID_Contrato != @idContrato AND EstadoLogico=1";
+                            AND ((@fechaInicio <= Fecha_Fin AND @fechaFin >= Fecha_Inicio)) AND ID_Contrato != @idContrato AND EstadoLogico=1  AND Estado = 'Vigente'";
                 using (var command = new MySqlCommand(sql, connection))
                 {
                     command.Parameters.AddWithValue("@idInmueble", idInmueble);

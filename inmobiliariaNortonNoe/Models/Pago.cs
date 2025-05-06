@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace inmobiliariaNortonNoe.Models
 {
@@ -12,26 +13,41 @@ namespace inmobiliariaNortonNoe.Models
         [Display(Name = "Contrato")]
         public int Id_Contrato { get; set; }
 
-        [Required(ErrorMessage = "La fecha de pago es obligatoria.")]
         [DataType(DataType.Date)]
         [Display(Name = "Fecha de Pago")]
-        public DateTime Fecha_Pago { get; set; }
+        public DateTime ? Fecha_Pago { get; set; }
 
-        [Required(ErrorMessage = "El periodo correspondiente es obligatorio")]
+        [Required(ErrorMessage = "El periodo correspondiente es obligatorio.")]
         [DataType(DataType.Date)]
         [Display(Name = "Periodo de Pago")]
         public DateTime Periodo_Pago { get; set; }
 
+
         [Required(ErrorMessage = "El importe es obligatorio.")]
-        [Range(1, double.MaxValue, ErrorMessage = "El importe debe ser mayor a 0.")]
+        [Range(0.01, 1000000)]
+        [Display(Name = "Monto")]
         public decimal Monto { get; set; }
 
-        public int esMulta { get; set; } = 0;
+        [Display(Name = "Pagado")]
+        public bool Pagado { get; set; } = false;
 
+        [Display(Name = "Es Multa")]
+        public bool EsMulta { get; set; } = false;
+
+        [MaxLength(200)]
+        [Display(Name = "Descripción")]
+        public string? Descripcion { get; set; }
+
+        [Display(Name = "Estado")]
         public int Estado { get; set; } = 1;
 
+        [Display(Name = "Usuario Alta")]
         public int Id_UsuarioAlta { get; set; }
 
-        public int ? Id_UsuarioBaja { get; set; }
+        [Display(Name = "Usuario Baja")]
+        public int? Id_UsuarioBaja { get; set; }
+
+        [ForeignKey("Id_Contrato")]
+        public Contrato? Contrato { get; set; }
     }
 }

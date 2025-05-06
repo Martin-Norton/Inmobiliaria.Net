@@ -25,7 +25,11 @@
                 <td>@c.Fecha_Inicio.ToShortDateString()</td>
                 @if (c.Estado == "Anulado")
                 {
-                    <td>Fecha Fin Anticipada</td> 
+                    <td>@{
+                        var fechaFin = c.Fecha_FinAnt.HasValue ? c.Fecha_FinAnt.Value.ToShortDateString() : "Fecha no disponible";
+                    }
+                    @fechaFin
+                    </td> 
                 }else
                 {
                     <td>@c.Fecha_Fin.ToShortDateString()</td>

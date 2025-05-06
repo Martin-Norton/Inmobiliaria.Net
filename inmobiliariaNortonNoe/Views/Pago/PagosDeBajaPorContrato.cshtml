@@ -5,14 +5,19 @@
 }
 
 <link rel="stylesheet" href="~/css/Pago/PagosPorContrato.css" />
-<h2>Pagos anulados del Contrato #@ViewBag.IdContrato</h2>
+<h2>Pagos anulados del Contrato</h2>
 
 <table class="table">
     <thead>
         <tr>
             <th>ID</th>
             <th>Fecha de Pago</th>
+            <th>Periodo</th>
             <th>Monto</th>
+            <th>Pagado</th>
+            <th>Es Multa</th>
+            <th>Descripción</th>
+            <th>Acciones</th>
         </tr>
     </thead>
     <tbody>
@@ -20,15 +25,20 @@
         {
             <tr>
                 <td>@pago.Id</td>
-                <td>@pago.Fecha_Pago.ToShortDateString()</td>
+                <td>@(pago.Fecha_Pago?.ToShortDateString() ?? "Sin fecha")</td>
+                <td>@pago.Periodo_Pago.ToShortDateString()</td>
                 <td>@pago.Monto.ToString("C")</td>
-                 <td>
-                <a class="btn btn-info btn-sm"
-                   asp-action="Details"
-                   asp-route-id="@pago.Id">Detalles</a> 
-            </td>
+                <td>@(pago.Pagado ? "Sí" : "No")</td>
+                <td>@(pago.EsMulta ? "Sí" : "No")</td>
+                <td>@pago.Descripcion</td>
+                <td>
+                    <a class="btn btn-info btn-sm"
+                       asp-action="Details"
+                       asp-route-id="@pago.Id">Detalles</a> 
+                </td>
             </tr>
         }
     </tbody>
 </table>
+
 <a class="btn btn-secondary" asp-controller="Contrato" asp-action="Details" asp-route-id="@ViewBag.IdContrato">Volver al Contrato</a>

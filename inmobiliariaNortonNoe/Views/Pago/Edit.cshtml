@@ -1,15 +1,21 @@
 @model inmobiliariaNortonNoe.Models.Pago
 
 @{
-    ViewData["Title"] = "Cargar Pago Extra o Pago de Multa";
+    ViewData["Title"] = "Editar Pago";
 }
 <link rel="stylesheet" href="~/css/Pago/Create.css" />
 
-<h2>Cargar Pago</h2>
+<h2>Editar Pago</h2>
 
-<form asp-action="Create" method="post" class="for">
-    <!-- Campo oculto con el Id del contrato -->
-    <input asp-for="Id_Contrato" type="hidden" />
+<form asp-action="Edit" method="post" class="for">
+    <input type="hidden" asp-for="Id" />
+
+    <div class="form-group">
+        <label asp-for="Id_Contrato"></label>
+        <select asp-for="Id_Contrato" class="form-control" asp-items="ViewBag.Contratos" disabled></select>
+        <input type="hidden" asp-for="Id_Contrato" />
+    </div>
+
 
     <div class="form-group">
         <label asp-for="Fecha_Pago"></label>
@@ -19,33 +25,33 @@
 
     <div class="form-group">
         <label asp-for="Periodo_Pago"></label>
-        <input asp-for="Periodo_Pago" class="form-control" type="date" />
+        <input asp-for="Periodo_Pago" class="form-control" type="month" />
         <span asp-validation-for="Periodo_Pago" class="text-danger"></span>
     </div>
 
     <div class="form-group">
         <label asp-for="Monto"></label>
-        <input asp-for="Monto" class="form-control" />
+        <input asp-for="Monto" class="form-control" step="any" value="@((int)Model.Monto)" />
         <span asp-validation-for="Monto" class="text-danger"></span>
     </div>
 
-    <div class="form-check">
+    <div class="form-group form-check">
         <input asp-for="Pagado" class="form-check-input" type="checkbox" />
         <label asp-for="Pagado" class="form-check-label"></label>
     </div>
 
-    <div class="form-check">
+    <div class="form-group form-check">
         <input asp-for="EsMulta" class="form-check-input" type="checkbox" />
         <label asp-for="EsMulta" class="form-check-label"></label>
     </div>
 
     <div class="form-group">
         <label asp-for="Descripcion"></label>
-        <textarea asp-for="Descripcion" class="form-control" rows="3"></textarea>
+        <input asp-for="Descripcion" class="form-control" />
         <span asp-validation-for="Descripcion" class="text-danger"></span>
     </div>
 
-    <button type="submit" class="btn btn-primary">Guardar</button>
+    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
     <a asp-action="PagosPorContrato" asp-route-idContrato="@Model.Id_Contrato" class="btn btn-secondary">Cancelar</a>
 </form>
 
