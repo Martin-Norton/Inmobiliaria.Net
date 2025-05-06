@@ -1,0 +1,19 @@
+@model inmobiliariaNortonNoe.Models.TipoInmueble
+@{
+    ViewData["Title"] = "Editar Tipo de Inmueble";
+}
+<h2>Editar Tipo de Inmueble</h2>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Id" />
+    <div class="form-group">
+        <label asp-for="Nombre"></label>
+        <input asp-for="Nombre" class="form-control" required />
+        <span asp-validation-for="Nombre" class="text-danger"></span>
+        <label asp-for="Descripcion"></label>
+        <input asp-for="Descripcion" class="form-control" required />
+        <span asp-validation-for="Descripcion" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-primary">Guardar</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+</form>

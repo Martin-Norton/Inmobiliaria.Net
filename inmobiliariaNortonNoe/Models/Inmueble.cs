@@ -1,4 +1,6 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
 
 namespace inmobiliariaNortonNoe.Models
 {
@@ -16,7 +18,11 @@ namespace inmobiliariaNortonNoe.Models
         public string Uso { get; set; }
 
         [Required(ErrorMessage = "El tipo es obligatorio.")]
-        public string Tipo { get; set; }
+        [Display(Name = "Tipo de Inmueble")]
+        public int Id_TipoInmueble { get; set; }
+
+        [NotMapped]
+        public TipoInmueble Tipo { get; set; }
 
         [Range(1, int.MaxValue, ErrorMessage = "La cantidad de ambientes debe ser mayor a 0.")]
         public int Cantidad_Ambientes { get; set; }

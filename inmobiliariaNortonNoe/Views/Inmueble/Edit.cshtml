@@ -15,8 +15,10 @@
     </div>
 
     <div class="form-group">
-        <label asp-for="Tipo"></label>
-        <input asp-for="Tipo" class="form-control" />
+        <label asp-for="Id_TipoInmueble"></label>
+        <select asp-for="Id_TipoInmueble" class="form-control" asp-items="ViewBag.TiposInmueble">
+            <option value="">Seleccione un tipo</option>
+        </select>
     </div>
 
     <div class="form-group">

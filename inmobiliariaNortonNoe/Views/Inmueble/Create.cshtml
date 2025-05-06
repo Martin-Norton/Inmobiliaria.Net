@@ -7,24 +7,13 @@
 <h2>Crear Inmueble</h2>
 
 <form asp-action="Create" enctype="multipart/form-data" method="post" class="for">
+    @Html.AntiForgeryToken()
+
     <div class="form-group">
         <label asp-for="Direccion"></label>
         <input asp-for="Direccion" class="form-control" />
         <span asp-validation-for="Direccion" class="text-danger"></span>
     </div>
-
-    <div class="form-group">
-        <label asp-for="Precio"></label>
-        <input asp-for="Precio" class="form-control" type="number" step="0.01" />
-        <span asp-validation-for="Precio" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label asp-for="Tipo"></label>
-        <input asp-for="Tipo" class="form-control" />
-        <span asp-validation-for="Tipo" class="text-danger"></span>
-    </div>
-
     <div class="form-group">
         <label asp-for="Uso"></label>
         <select asp-for="Uso" class="form-control">
@@ -33,7 +22,13 @@
         </select>
         <span asp-validation-for="Uso" class="text-danger"></span>
     </div>
-
+    <div class="form-group">
+        <label asp-for="Id_TipoInmueble"></label>
+        <select asp-for="Id_TipoInmueble" class="form-control" asp-items="ViewBag.TiposInmueble">
+            <option value="">Seleccione un tipo</option>
+        </select>
+        <span asp-validation-for="Id_TipoInmueble" class="text-danger"></span>
+    </div>
     <div class="form-group">
         <label asp-for="Cantidad_Ambientes"></label>
         <input asp-for="Cantidad_Ambientes" class="form-control" type="number" min="1" />
@@ -45,7 +40,11 @@
         <input asp-for="Coordenadas" class="form-control" />
         <span asp-validation-for="Coordenadas" class="text-danger"></span>
     </div>
-
+    <div class="form-group">
+        <label asp-for="Precio"></label>
+        <input asp-for="Precio" class="form-control" type="number" step="0.01" />
+        <span asp-validation-for="Precio" class="text-danger"></span>
+    </div>
     <div class="form-group">
         <label asp-for="Estado"></label>
         <select asp-for="Estado" class="form-control">
@@ -68,7 +67,6 @@
         <input asp-for="PortadaFile" type="file" class="form-control" />
         <span asp-validation-for="PortadaFile" class="text-danger"></span>
     </div>
-
 
     <button type="submit" class="btn btn-primary" class="bt">Guardar</button>
     <a asp-action="Index" class="btn btn-secondary">Cancelar</a>

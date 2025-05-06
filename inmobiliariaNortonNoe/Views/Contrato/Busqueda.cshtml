@@ -30,6 +30,7 @@
                 <th>Fecha de Inicio</th>
                 <th>Fecha de Fin</th>
                 <th>Precio Alquiler</th>
+                <th>Acciones</th>
             </tr>
         </thead>
         <tbody>
@@ -42,11 +43,17 @@
                     <td>@item.Contrato.Fecha_Inicio.ToString("dd/MM/yyyy")</td>
                     <td>@item.Contrato.Fecha_Fin.ToString("dd/MM/yyyy")</td>
                     <td>@item.Contrato.Monto_Alquiler.ToString("C")</td>
+                    <td>
+                        <a class="btn btn-info" asp-action="Details" asp-route-id="@item.Contrato.ID_Contrato">Ver Más</a>
+                        @if (User.IsInRole("Administrador"))
+                        {
+                            <a class="btn btn-danger" asp-action="Eliminar" asp-route-id="@item.Contrato.ID_Contrato">Eliminar</a>
+                        }
+                    </td>
                 </tr>
             }
         </tbody>
     </table>
-
 }
 else if (Model != null)
 {

@@ -236,7 +236,7 @@ namespace inmobiliariaNortonNoe.Models
             using (var connection = new MySqlConnection(connectionString))
             {
                 string sql = @"SELECT c.ID_Contrato, c.ID_Inmueble, c.ID_Inquilino, c.Fecha_Inicio, c.Fecha_Fin,
-                                    c.Monto_Alquiler, c.Multa, c.Estado, c.ID_UsuarioAlta, c.ID_UsuarioBaja, c.Fecha_FinAnt, c.ID_UsuarioAnulacion
+                                    c.Monto_Alquiler, c.Multa, c.Estado, c.ID_UsuarioAlta, c.ID_UsuarioBaja, c.Fecha_FinAnt, c.ID_UsuarioAnulacion,
                                     i.Nombre, i.Apellido,
                                     inm.Direccion
                             FROM Contrato c
@@ -260,7 +260,7 @@ namespace inmobiliariaNortonNoe.Models
                             Multa = reader.GetDecimal("Multa"),
                             Estado = reader.GetString("Estado"),
                             ID_UsuarioAlta = reader.GetInt32("ID_UsuarioAlta"),
-                            ID_UsuarioBaja = reader.GetInt32("ID_UsuarioBaja"),
+                            ID_UsuarioBaja = reader.IsDBNull(reader.GetOrdinal("ID_UsuarioBaja")) ? (int?)null : reader.GetInt32("ID_UsuarioBaja"),
                             Fecha_FinAnt = reader.IsDBNull(reader.GetOrdinal("Fecha_FinAnt")) ? (DateTime?)null : reader.GetDateTime("Fecha_FinAnt"),
                             ID_UsuarioAnulacion = reader.IsDBNull(reader.GetOrdinal("ID_UsuarioAnulacion")) ? (int?)null : reader.GetInt32("ID_UsuarioAnulacion"),
                             Inquilino = new Inquilino

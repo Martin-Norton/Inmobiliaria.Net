@@ -129,11 +129,23 @@ namespace inmobiliariaNortonNoe.Controllers
         {
             try
             {
+                ModelState.Remove("Inmueble.Id_TipoInmueble");
+                ModelState.Remove("Inmueble");
+                ModelState.Remove("Inquilino");
+
                 if (!ModelState.IsValid)
                 {
+                    Console.WriteLine("ModelState no es válido. desde el post de create contrato");
                     ModelState.AddModelError("", "Campos vacios o incorrectos");
                     ViewBag.inmuebles = new SelectList(repoInmueble.ObtenerTodos(), "Id", "Direccion");
                     ViewBag.Inquilinos = new SelectList(repoInquilino.ObtenerTodos(), "Id", "Nombre");
+                    foreach (var state in ModelState)
+                    {
+                        foreach (var error in state.Value.Errors)
+                        {
+                            Console.WriteLine($"Error en el campo '{state.Key}': {error.ErrorMessage}");
+                        }
+                    }
                     return View(contrato);
                 }
 

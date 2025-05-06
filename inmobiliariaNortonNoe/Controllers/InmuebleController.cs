@@ -5,8 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Authorization;
 using inmobiliariaNortonNoe.Models;
-using Microsoft.AspNetCore.Authorization;
-
+using Microsoft.AspNetCore.Hosting;
+using System.Threading.Tasks;
 
 namespace inmobiliariaNortonNoe.Controllers
 {
@@ -15,12 +15,14 @@ namespace inmobiliariaNortonNoe.Controllers
         private readonly IRepositorioInmueble repositorio;
         private readonly IRepositorioPropietario repositorioPropietario;
         private readonly IWebHostEnvironment environment;
+        private readonly IRepositorioTipoInmueble repositorioTipoInmueble;
 
-        public InmuebleController(IWebHostEnvironment environment, IRepositorioInmueble repo, IRepositorioPropietario repositorioPropietario)
+        public InmuebleController(IWebHostEnvironment environment, IRepositorioInmueble repo, IRepositorioPropietario repositorioPropietario, IRepositorioTipoInmueble repositorioTipoInmueble)
         {
             this.environment = environment;
             this.repositorioPropietario = repositorioPropietario;
             this.repositorio = repo;
+            this.repositorioTipoInmueble = repositorioTipoInmueble;
         }
 
         [Authorize(Roles = "Inmobiliaria, Administrador")]
@@ -62,19 +64,19 @@ namespace inmobiliariaNortonNoe.Controllers
 
         [Route("[controller]/Buscar/{q}")]
         [Authorize(Roles = "Inmobiliaria, Administrador")]
-        public IActionResult Buscar(string q)
+        public IActionResult Buscar(int q)
         {
             var res = repositorio.BuscarPorTipo(q);
             return Json(new { Datos = res });
         }
-    //region Busquedas
 
-        //Buscar por propietario
+        //region Busquedas
+
         [Route("[controller]/BuscarPorPropietario")]
         [Authorize(Roles = "Inmobiliaria, Administrador")]
         public IActionResult BuscarPorPropietario(int propietarioId = 0)
         {
-            var propietarios = repositorioPropietario.ObtenerTodos(). ToList();
+            var propietarios = repositorioPropietario.ObtenerTodos().ToList();
             ViewBag.Propietarios = propietarios;
 
             List<Inmueble> inmuebles = new List<Inmueble>();
@@ -87,7 +89,6 @@ namespace inmobiliariaNortonNoe.Controllers
             return View("BuscarPorPropietario", inmuebles);
         }
 
-        //buscar disponible
         [Route("[controller]/Buscar")]
         [Authorize(Roles = "Inmobiliaria, Administrador")]
         public IActionResult BuscarDisponibles(string q)
@@ -121,7 +122,7 @@ namespace inmobiliariaNortonNoe.Controllers
         {
             return View("Buscar", null);
         }
-        
+
         [Route("[controller]/BuscarDisponiblesPorFechas")]
         [Authorize(Roles = "Inmobiliaria, Administrador")]
         public IActionResult BuscarDisponiblesPorFechas(DateTime fechaDesde, DateTime fechaHasta)
@@ -136,7 +137,7 @@ namespace inmobiliariaNortonNoe.Controllers
             return View("BuscarDisponiblesPorFechas", inmuebles);
         }
 
-    //endregion Busquedas
+        //endregion Busquedas
 
         [Authorize(Roles = "Inmobiliaria, Administrador")]
         public IActionResult Create()
@@ -150,15 +151,18 @@ namespace inmobiliariaNortonNoe.Controllers
                     return RedirectToAction("Index");
                 }
 
+                var listaTiposInmueble = repositorioTipoInmueble.ObtenerTodos();
                 ViewBag.Propietarios = new SelectList(listaPropietarios, "Id", "Nombre");
-
+                ViewBag.TiposInmueble = new SelectList(listaTiposInmueble, "Id", "Nombre");
+                Console.WriteLine("se cargaron los view bag, enviado desde el get de create");
                 if (TempData.ContainsKey("Mensaje"))
                     ViewBag.Mensaje = TempData["Mensaje"];
-
-                return View(new Inmueble());
+                    Console.WriteLine("mensaje desde el if de tempdata: " + TempData["Mensaje"]);
+            return View(new Inmueble());
             }
             catch (Exception ex)
             {
+                Console.WriteLine("se lanzo la excepcion desde el catch del get create: " + ex.Message);
                 ViewBag.Error = ex.Message;
                 return RedirectToAction(nameof(Index));
             }
@@ -169,10 +173,20 @@ namespace inmobiliariaNortonNoe.Controllers
         [Authorize(Roles = "Inmobiliaria, Administrador")]
         public async Task<ActionResult> Create(Inmueble inmueble)
         {
+            ModelState.Remove("Tipo");
             if (!ModelState.IsValid)
             {
                 var listaPropietarios = repositorioPropietario.ObtenerTodos();
+                var listaTiposInmueble = repositorioTipoInmueble.ObtenerTodos();
                 ViewBag.Propietarios = new SelectList(listaPropietarios, "Id", "Nombre");
+                ViewBag.TiposInmueble = new SelectList(listaTiposInmueble, "Id", "Nombre");
+                foreach (var state in ModelState)
+                {
+                    foreach (var error in state.Value.Errors)
+                    {
+                        Console.WriteLine($"Error en el campo '{state.Key}': {error.ErrorMessage}");
+                    }
+                }
 
                 return View(inmueble);
             }
@@ -204,8 +218,10 @@ namespace inmobiliariaNortonNoe.Controllers
         {
             var entidad = repositorio.ObtenerPorId(id);
             var propietario = repositorioPropietario.ObtenerPorId(entidad.Id_Propietario);
+            var tiposInmueble = repositorioTipoInmueble.ObtenerTodos();
             ViewBag.NombrePropietario = propietario?.Nombre + " " + propietario?.Apellido;
             ViewBag.Propietarios = new SelectList(repositorioPropietario.ObtenerTodos(), "Id", "Nombre", entidad.Id_Propietario);
+            ViewBag.TiposInmueble = new SelectList(tiposInmueble, "Id", "Nombre", entidad.Id_TipoInmueble);
 
             if (TempData.ContainsKey("Mensaje"))
                 ViewBag.Mensaje = TempData["Mensaje"];
@@ -220,9 +236,21 @@ namespace inmobiliariaNortonNoe.Controllers
         [Authorize(Roles = "Inmobiliaria, Administrador")]
         public async Task<ActionResult> Edit(int id, Inmueble inmueble)
         {
+            ModelState.Remove("Tipo");
+
             if (!ModelState.IsValid)
             {
+                var tiposInmueble = repositorioTipoInmueble.ObtenerTodos();
+                ViewBag.TiposInmueble = new SelectList(tiposInmueble, "Id", "Nombre", inmueble.Id_TipoInmueble);
                 ViewBag.Propietarios = new SelectList(repositorioPropietario.ObtenerTodos(), "Id", "Nombre");
+                foreach (var state in ModelState)
+                {
+                    foreach (var error in state.Value.Errors)
+                    {
+                        Console.WriteLine($"Error en el campo '{state.Key}': {error.ErrorMessage}");
+                    }
+                }
+                Console.WriteLine("se lanzo la excepcion desde el catch del post edit: " + ModelState.Values.ToString());
                 return View(inmueble);
             }
 
@@ -251,6 +279,7 @@ namespace inmobiliariaNortonNoe.Controllers
             entidadExistente.Tipo = inmueble.Tipo;
             entidadExistente.Uso = inmueble.Uso;
             entidadExistente.Id_Propietario = inmueble.Id_Propietario;
+            entidadExistente.Id_TipoInmueble = inmueble.Id_TipoInmueble;
             entidadExistente.Portada = inmueble.Portada ?? entidadExistente.Portada;
 
             repositorio.Modificacion(entidadExistente);

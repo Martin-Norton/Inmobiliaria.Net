@@ -1,0 +1,22 @@
+@model inmobiliariaNortonNoe.Models.TipoInmueble
+@{
+    ViewData["Title"] = "Detalles Tipo de Inmueble";
+}
+<h2>Detalles del Tipo de Inmueble</h2>
+
+<div class="form-group">
+    <label>Nombre</label>
+    <p>@Model.Nombre</p>
+    <label>Descripcion</label>
+    <p>@Model.Descripcion</p>
+
+</div>
+
+<div class="button-group">
+    <a asp-action="Index" class="btn btn-secondary">Volver</a>
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Editar</a>
+    @if (User.IsInRole("Administrador"))
+    {
+        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">Eliminar</a>
+    }
+</div>

@@ -41,6 +41,9 @@ builder.Services.AddScoped<IRepositorioImagen, RepositorioImagen>();
 
 builder.Services.AddScoped<IRepositorioUsuario, RepositorioUsuario>();
 
+builder.Services.AddScoped<IRepositorioTipoInmueble, RepositorioTipoInmueble>();
+
+
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
@@ -60,5 +63,4 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
-
 app.Run();
