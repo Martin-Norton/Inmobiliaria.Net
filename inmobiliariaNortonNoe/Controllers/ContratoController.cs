@@ -310,6 +310,9 @@ namespace inmobiliariaNortonNoe.Controllers
         {
             try
             {
+                ModelState.Remove("Inmueble");
+                ModelState.Remove("Inquilino");
+
                 if (!ModelState.IsValid)
                 {
                     ModelState.AddModelError("", "Campos vacios o incorrectos");

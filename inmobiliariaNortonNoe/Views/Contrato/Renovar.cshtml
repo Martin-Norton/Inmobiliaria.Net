@@ -1,4 +1,4 @@
-@model Contrato
+@model inmobiliariaNortonNoe.Models.Contrato
 
 @{
     ViewData["Title"] = "Renovar Contrato";
@@ -11,6 +11,16 @@
 <h2>Renovar Contrato</h2>
 
 <form asp-action="Renovar" method="post" class="cont">
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger">
+        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+        {
+            <p>@error.ErrorMessage</p>
+        }
+    </div>
+}
+
     @Html.AntiForgeryToken()
 
     <div class="form-group">
