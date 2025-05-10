@@ -152,6 +152,7 @@ namespace inmobiliariaNortonNoe.Controllers
                 if (repositorio.ExisteContratoSuperpuesto(contrato.ID_Inmueble, contrato.Fecha_Inicio, contrato.Fecha_Fin))
                 {
                     ModelState.AddModelError("", "Ya existe un contrato para este inmueble en las fechas seleccionadas.");
+                    TempData["Error"] = "Ya existe un contrato para este inmueble en las fechas seleccionadas.";
                     ViewBag.inmuebles = new SelectList(repoInmueble.ObtenerTodos(), "Id", "Direccion");
                     ViewBag.Inquilinos = new SelectList(repoInquilino.ObtenerTodos(), "Id", "Nombre");
                     return View(contrato);
